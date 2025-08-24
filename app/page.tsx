@@ -18,6 +18,7 @@ import Image from "next/image";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import FeaturedPropertyCard from "@/components/FeaturedPropertyCard";
+import Navbar from "@/components/Navbar";
 
 async function getSiteSettings() {
   const cookieStore = await cookies();
@@ -99,62 +100,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="bg-white/95 backdrop-blur-sm border-b border-green-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FS</span>
-              </div>
-              <span className="text-xl font-bold text-green-800">
-                {settings.site_name || "FarmStay Oasis"}
-              </span>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link
-                href="/"
-                className="text-gray-700 hover:text-green-600 transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                href="/properties"
-                className="text-gray-700 hover:text-green-600 transition-colors"
-              >
-                Properties
-              </Link>
-              <Link
-                href="/about"
-                className="text-gray-700 hover:text-green-600 transition-colors"
-              >
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="text-gray-700 hover:text-green-600 transition-colors"
-              >
-                Contact
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/login">
-                <Button
-                  variant="ghost"
-                  className="text-green-700 hover:text-green-800"
-                >
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar currentPage="home" />
 
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image */}

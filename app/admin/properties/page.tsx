@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,10 +16,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogOverlay,
+  DialogPortal,
 } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   Home,
-  Shield,
   Eye,
   Check,
   X,
@@ -32,6 +34,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import AdminNavbar from "@/components/AdminNavbar";
 
 interface Property {
   id: string;
@@ -70,6 +73,34 @@ const AMENITIES_OPTIONS = [
   "Outdoor Dining",
 ];
 
+// Custom DialogContent with transparent overlay
+function CustomDialogContent({
+  className,
+  children,
+  showCloseButton = true,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  showCloseButton?: boolean;
+}) {
+  return (
+    <DialogPortal>
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+      <DialogPrimitive.Content
+        className={`bg-white data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border shadow-lg duration-200 p-6 ${className}`}
+        {...props}
+      >
+        {children}
+        {showCloseButton && (
+          <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-slate-100 data-[state=open]:text-slate-500">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  );
+}
+
 export default function AdminPropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +115,8 @@ export default function AdminPropertiesPage() {
     max_guests: "",
     bedrooms: "",
     bathrooms: "",
+    rating: "",
+    total_reviews: "",
     amenities: [] as string[],
     images: [] as string[],
   });
@@ -96,6 +129,8 @@ export default function AdminPropertiesPage() {
     max_guests: "",
     bedrooms: "",
     bathrooms: "",
+    rating: "",
+    total_reviews: "",
     amenities: [] as string[],
     images: [] as string[],
   });
@@ -249,6 +284,8 @@ export default function AdminPropertiesPage() {
       max_guests: property.max_guests.toString(),
       bedrooms: property.bedrooms.toString(),
       bathrooms: property.bathrooms.toString(),
+      rating: (property as any).rating?.toString() || "0",
+      total_reviews: (property as any).total_reviews?.toString() || "0",
       amenities: property.amenities || [],
       images: property.images || [],
     });
@@ -273,6 +310,8 @@ export default function AdminPropertiesPage() {
           max_guests: parseInt(editForm.max_guests),
           bedrooms: parseInt(editForm.bedrooms),
           bathrooms: parseInt(editForm.bathrooms),
+          rating: parseFloat(editForm.rating) || 0,
+          total_reviews: parseInt(editForm.total_reviews) || 0,
           amenities: editForm.amenities,
           images: editForm.images,
           updated_at: new Date().toISOString(),
@@ -294,6 +333,8 @@ export default function AdminPropertiesPage() {
                 max_guests: parseInt(editForm.max_guests),
                 bedrooms: parseInt(editForm.bedrooms),
                 bathrooms: parseInt(editForm.bathrooms),
+                rating: parseFloat(editForm.rating) || 0,
+                total_reviews: parseInt(editForm.total_reviews) || 0,
                 amenities: editForm.amenities,
                 images: editForm.images,
               }
@@ -435,8 +476,8 @@ export default function AdminPropertiesPage() {
           amenities: addForm.amenities,
           images: addForm.images,
           is_active: true,
-          rating: 0,
-          total_reviews: 0,
+          rating: parseFloat(addForm.rating) || 0,
+          total_reviews: parseInt(addForm.total_reviews) || 0,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -472,6 +513,8 @@ export default function AdminPropertiesPage() {
         max_guests: "",
         bedrooms: "",
         bathrooms: "",
+        rating: "",
+        total_reviews: "",
         amenities: [],
         images: [],
       });
@@ -505,32 +548,7 @@ export default function AdminPropertiesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/admin" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-red-800">
-                Admin Panel
-              </span>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/admin">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
-              <Link href="/admin/users">
-                <Button variant="ghost">Users</Button>
-              </Link>
-              <Link href="/admin/settings">
-                <Button variant="ghost">Settings</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <AdminNavbar currentPage="properties" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex justify-between items-center">
@@ -544,11 +562,11 @@ export default function AdminPropertiesPage() {
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-green-600 hover:bg-green-700 text-white">
+              <Button className="bg-green-600 hover:bg-green-700 text-white cursor-pointer">
                 Add New Property
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <CustomDialogContent className="w-[80vw] max-w-none h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Property</DialogTitle>
               </DialogHeader>
@@ -667,6 +685,42 @@ export default function AdminPropertiesPage() {
                     />
                   </div>
                 </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="add-rating">Rating (0-5)</Label>
+                    <Input
+                      id="add-rating"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={addForm.rating}
+                      onChange={(e) =>
+                        setAddForm((prev) => ({
+                          ...prev,
+                          rating: e.target.value,
+                        }))
+                      }
+                      placeholder="4.5"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-total-reviews">Total Reviews</Label>
+                    <Input
+                      id="add-total-reviews"
+                      type="number"
+                      min="0"
+                      value={addForm.total_reviews}
+                      onChange={(e) =>
+                        setAddForm((prev) => ({
+                          ...prev,
+                          total_reviews: e.target.value,
+                        }))
+                      }
+                      placeholder="25"
+                    />
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <Label>Amenities</Label>
                   <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
@@ -702,6 +756,7 @@ export default function AdminPropertiesPage() {
                       type="button"
                       onClick={addNewImageUrl}
                       variant="outline"
+                      className="cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
@@ -719,6 +774,7 @@ export default function AdminPropertiesPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => removeNewImage(index)}
+                            className="cursor-pointer"
                           >
                             <X className="w-3 h-3" />
                           </Button>
@@ -732,19 +788,20 @@ export default function AdminPropertiesPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setIsAddDialogOpen(false)}
+                    className="cursor-pointer"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={addLoading}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 cursor-pointer"
                   >
                     {addLoading ? "Creating..." : "Create Property"}
                   </Button>
                 </div>
               </form>
-            </DialogContent>
+            </CustomDialogContent>
           </Dialog>
         </div>
 
@@ -818,13 +875,13 @@ export default function AdminPropertiesPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => openEditDialog(property)}
-                              className="text-blue-600 hover:text-blue-700"
+                              className="text-blue-600 hover:text-blue-700 cursor-pointer"
                             >
                               <Edit className="w-4 h-4 mr-1" />
                               Edit
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                          <CustomDialogContent className="w-[80vw] max-w-none h-[80vh] overflow-y-auto">
                             <DialogHeader>
                               <DialogTitle>Edit Property</DialogTitle>
                             </DialogHeader>
@@ -939,6 +996,42 @@ export default function AdminPropertiesPage() {
                                   />
                                 </div>
                               </div>
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="rating">Rating (0-5)</Label>
+                                  <Input
+                                    id="rating"
+                                    type="number"
+                                    step="0.1"
+                                    min="0"
+                                    max="5"
+                                    value={editForm.rating}
+                                    onChange={(e) =>
+                                      setEditForm((prev) => ({
+                                        ...prev,
+                                        rating: e.target.value,
+                                      }))
+                                    }
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="total-reviews">
+                                    Total Reviews
+                                  </Label>
+                                  <Input
+                                    id="total-reviews"
+                                    type="number"
+                                    min="0"
+                                    value={editForm.total_reviews}
+                                    onChange={(e) =>
+                                      setEditForm((prev) => ({
+                                        ...prev,
+                                        total_reviews: e.target.value,
+                                      }))
+                                    }
+                                  />
+                                </div>
+                              </div>
                               <div className="space-y-2">
                                 <Label>Amenities</Label>
                                 <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
@@ -981,6 +1074,7 @@ export default function AdminPropertiesPage() {
                                     type="button"
                                     onClick={addEditImageUrl}
                                     variant="outline"
+                                    className="cursor-pointer"
                                   >
                                     <Plus className="w-4 h-4" />
                                   </Button>
@@ -1000,6 +1094,7 @@ export default function AdminPropertiesPage() {
                                           size="sm"
                                           variant="outline"
                                           onClick={() => removeEditImage(index)}
+                                          className="cursor-pointer"
                                         >
                                           <X className="w-3 h-3" />
                                         </Button>
@@ -1013,13 +1108,14 @@ export default function AdminPropertiesPage() {
                                   type="button"
                                   variant="outline"
                                   onClick={() => setIsEditDialogOpen(false)}
+                                  className="cursor-pointer"
                                 >
                                   Cancel
                                 </Button>
                                 <Button
                                   type="submit"
                                   disabled={editLoading}
-                                  className="bg-blue-600 hover:bg-blue-700"
+                                  className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
                                 >
                                   {editLoading
                                     ? "Updating..."
@@ -1027,7 +1123,7 @@ export default function AdminPropertiesPage() {
                                 </Button>
                               </div>
                             </form>
-                          </DialogContent>
+                          </CustomDialogContent>
                         </Dialog>
                         <Button
                           variant="outline"
@@ -1040,8 +1136,8 @@ export default function AdminPropertiesPage() {
                           }
                           className={
                             property.is_active
-                              ? "text-red-600 hover:text-red-700"
-                              : "text-green-600 hover:text-green-700"
+                              ? "text-red-600 hover:text-red-700 cursor-pointer"
+                              : "text-green-600 hover:text-green-700 cursor-pointer"
                           }
                         >
                           {property.is_active ? (
@@ -1060,7 +1156,7 @@ export default function AdminPropertiesPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-blue-600 hover:text-blue-700"
+                            className="text-blue-600 hover:text-blue-700 cursor-pointer"
                           >
                             <Eye className="w-4 h-4 mr-1" />
                             View
@@ -1070,7 +1166,7 @@ export default function AdminPropertiesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => deleteProperty(property.id)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 cursor-pointer"
                         >
                           Deactivate
                         </Button>

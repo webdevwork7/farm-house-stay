@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
 
 interface Farmhouse {
   id: string;
@@ -165,36 +166,7 @@ export default function PropertiesPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Navigation */}
-        <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">FS</span>
-                </div>
-                <span className="text-xl font-bold text-green-800">
-                  FarmStay Oasis
-                </span>
-              </Link>
-              <div className="flex items-center space-x-4">
-                <Link href="/auth/login">
-                  <Button
-                    variant="ghost"
-                    className="text-green-700 hover:text-green-800"
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/auth/register">
-                  <Button className="bg-green-600 hover:bg-green-700 text-white">
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <Navbar currentPage="properties" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -220,53 +192,7 @@ export default function PropertiesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FS</span>
-              </div>
-              <span className="text-xl font-bold text-green-800">
-                FarmStay Oasis
-              </span>
-            </Link>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/properties" className="text-green-600 font-medium">
-                Properties
-              </Link>
-              <Link
-                href="/about"
-                className="text-gray-700 hover:text-green-600 transition-colors"
-              >
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="text-gray-700 hover:text-green-600 transition-colors"
-              >
-                Contact
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/login">
-                <Button
-                  variant="ghost"
-                  className="text-green-700 hover:text-green-800"
-                >
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar currentPage="properties" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

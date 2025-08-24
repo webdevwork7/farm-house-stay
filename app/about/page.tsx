@@ -4,57 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Users, Shield, Heart, Award, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="bg-white/95 backdrop-blur-sm border-b border-green-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FS</span>
-              </div>
-              <Link href="/" className="text-xl font-bold text-green-800">
-                FarmStay Oasis
-              </Link>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link
-                href="/properties"
-                className="text-gray-700 hover:text-green-600 transition-colors"
-              >
-                Properties
-              </Link>
-              <Link href="/about" className="text-green-600 font-medium">
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="text-gray-700 hover:text-green-600 transition-colors"
-              >
-                Contact
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/login">
-                <Button
-                  variant="ghost"
-                  className="text-green-700 hover:text-green-800"
-                >
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar currentPage="about" />
 
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-green-50 via-blue-50 to-amber-50">

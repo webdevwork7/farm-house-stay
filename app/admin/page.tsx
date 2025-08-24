@@ -5,16 +5,10 @@ import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Users,
-  Home,
-  Calendar,
-  DollarSign,
-  Settings,
-  Shield,
-} from "lucide-react";
+import { Users, Home, Calendar, DollarSign, Settings } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AdminNavbar from "@/components/AdminNavbar";
 
 interface AdminStats {
   totalUsers: number;
@@ -25,7 +19,6 @@ interface AdminStats {
 }
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState<AdminStats>({
     totalUsers: 0,
     totalProperties: 0,
@@ -62,14 +55,12 @@ export default function AdminDashboard() {
 
       // If user exists and is admin, proceed
       if (userData && userData.role === "admin") {
-        setUser(user);
         await fetchAdminStats();
         return;
       }
 
       // If user doesn't exist but email is admin@gmail.com, they should have access
       if (user.email === "admin@gmail.com") {
-        setUser(user);
         await fetchAdminStats();
         return;
       }
@@ -137,57 +128,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-red-800">
-                Admin Dashboard
-              </span>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/admin/users">
-                <Button variant="ghost">Users</Button>
-              </Link>
-              <Link href="/admin/properties">
-                <Button variant="ghost">Properties</Button>
-              </Link>
-              <Link href="/admin/bookings">
-                <Button variant="ghost">Bookings</Button>
-              </Link>
-              <Link href="/admin/settings">
-                <Button variant="ghost">Settings</Button>
-              </Link>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  try {
-                    const supabase = createClient();
-                    await supabase.auth.signOut();
-                    toast({
-                      title: "Signed Out Successfully",
-                      description: "Admin session ended. Redirecting to home.",
-                    });
-                    router.push("/");
-                  } catch (error) {
-                    toast({
-                      title: "Sign Out Failed",
-                      description: "There was an error signing you out.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <AdminNavbar currentPage="dashboard" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -275,7 +216,7 @@ export default function AdminDashboard() {
                 Manage user accounts, roles, and permissions.
               </p>
               <Link href="/admin/users">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
                   Manage Users
                 </Button>
               </Link>
@@ -294,7 +235,7 @@ export default function AdminDashboard() {
                 Review and manage all listed properties.
               </p>
               <Link href="/admin/properties">
-                <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                <Button className="w-full bg-green-600 hover:bg-green-700 text-white cursor-pointer">
                   Manage Properties
                 </Button>
               </Link>
@@ -313,7 +254,7 @@ export default function AdminDashboard() {
                 Configure site settings and preferences.
               </p>
               <Link href="/admin/settings">
-                <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white">
+                <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white cursor-pointer">
                   Site Settings
                 </Button>
               </Link>

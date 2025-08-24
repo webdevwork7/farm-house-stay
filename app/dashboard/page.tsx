@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import DashboardNavbar from "@/components/DashboardNavbar";
 
 interface DashboardStats {
   totalProperties: number;
@@ -379,64 +380,71 @@ export default function OwnerDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FS</span>
-              </div>
-              <span className="text-xl font-bold text-green-800" id="site-name">
-                {siteSettings.site_name || "FarmStay Oasis"}
-              </span>
+      <DashboardNavbar
+        currentPage="dashboard"
+        siteName={siteSettings.site_name}
+      />
+
+      {/* Navigation Actions */}
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-end items-center h-12 space-x-4">
+            <Link href="/dashboard/analytics">
+              <Button variant="ghost" className="cursor-pointer">
+                Analytics
+              </Button>
             </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard/analytics">
-                <Button variant="ghost">Analytics</Button>
-              </Link>
-              <Link href="/dashboard/properties">
-                <Button variant="ghost">Properties</Button>
-              </Link>
-              <Link href="/dashboard/bookings">
-                <Button variant="ghost">Bookings</Button>
-              </Link>
-              <Link href="/dashboard/profile">
-                <Button variant="ghost">Profile</Button>
-              </Link>
-              <Button variant="outline" className="relative bg-transparent">
-                <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {stats.pendingBookings}
-                </span>
+            <Link href="/dashboard/properties">
+              <Button variant="ghost" className="cursor-pointer">
+                Properties
               </Button>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  try {
-                    const supabase = createClient();
-                    await supabase.auth.signOut();
-                    toast({
-                      title: "Signed Out Successfully",
-                      description: "You have been logged out. See you soon!",
-                    });
-                    router.push("/");
-                  } catch (error) {
-                    toast({
-                      title: "Sign Out Failed",
-                      description:
-                        "There was an error signing you out. Please try again.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                Sign Out
+            </Link>
+            <Link href="/dashboard/bookings">
+              <Button variant="ghost" className="cursor-pointer">
+                Bookings
               </Button>
-            </div>
+            </Link>
+            <Link href="/dashboard/profile">
+              <Button variant="ghost" className="cursor-pointer">
+                Profile
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              className="relative bg-transparent cursor-pointer"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {stats.pendingBookings}
+              </span>
+            </Button>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={async () => {
+                try {
+                  const supabase = createClient();
+                  await supabase.auth.signOut();
+                  toast({
+                    title: "Signed Out Successfully",
+                    description: "You have been logged out. See you soon!",
+                  });
+                  router.push("/");
+                } catch (error) {
+                  toast({
+                    title: "Sign Out Failed",
+                    description:
+                      "There was an error signing you out. Please try again.",
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
-      </nav>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -761,7 +769,11 @@ export default function OwnerDashboard() {
                     <span>Recent Bookings</span>
                   </CardTitle>
                   <Link href="/dashboard/bookings">
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="cursor-pointer"
+                    >
                       View All
                     </Button>
                   </Link>
@@ -828,7 +840,11 @@ export default function OwnerDashboard() {
                   <span>Top Performing Properties</span>
                 </CardTitle>
                 <Link href="/dashboard/properties">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer"
+                  >
                     View All Properties
                   </Button>
                 </Link>

@@ -26,6 +26,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import AdminNavbar from "@/components/AdminNavbar";
 
 interface Booking {
   id: string;
@@ -208,35 +209,7 @@ export default function AdminBookingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/admin" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-red-800">
-                Admin Panel
-              </span>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/admin">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
-              <Link href="/admin/users">
-                <Button variant="ghost">Users</Button>
-              </Link>
-              <Link href="/admin/properties">
-                <Button variant="ghost">Properties</Button>
-              </Link>
-              <Link href="/admin/settings">
-                <Button variant="ghost">Settings</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <AdminNavbar currentPage="bookings" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
