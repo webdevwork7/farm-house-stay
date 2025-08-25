@@ -547,638 +547,651 @@ export default function AdminPropertiesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminNavbar currentPage="properties" />
+    <>
+      <title>Property Management - Admin Panel</title>
+      <div className="min-h-screen bg-gray-50">
+        <AdminNavbar currentPage="properties" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Property Management
-            </h1>
-            <p className="text-gray-600">
-              Review and manage all property listings
-            </p>
-          </div>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-green-600 hover:bg-green-700 text-white cursor-pointer">
-                Add New Property
-              </Button>
-            </DialogTrigger>
-            <CustomDialogContent className="w-[80vw] max-w-none h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Add New Property</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleAddProperty} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Property Management
+              </h1>
+              <p className="text-gray-600">
+                Review and manage all property listings
+              </p>
+            </div>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-green-600 hover:bg-green-700 text-white cursor-pointer">
+                  Add New Property
+                </Button>
+              </DialogTrigger>
+              <CustomDialogContent className="w-[80vw] max-w-none h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Add New Property</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleAddProperty} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="add-name">Property Name</Label>
+                      <Input
+                        id="add-name"
+                        value={addForm.name}
+                        onChange={(e) =>
+                          setAddForm((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g., Serene Valley Farmhouse"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="add-location">Location</Label>
+                      <Input
+                        id="add-location"
+                        value={addForm.location}
+                        onChange={(e) =>
+                          setAddForm((prev) => ({
+                            ...prev,
+                            location: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g., Shamirpet, Hyderabad"
+                        required
+                      />
+                    </div>
+                  </div>
                   <div className="space-y-2">
-                    <Label htmlFor="add-name">Property Name</Label>
-                    <Input
-                      id="add-name"
-                      value={addForm.name}
+                    <Label htmlFor="add-description">Description</Label>
+                    <Textarea
+                      id="add-description"
+                      value={addForm.description}
                       onChange={(e) =>
                         setAddForm((prev) => ({
                           ...prev,
-                          name: e.target.value,
+                          description: e.target.value,
                         }))
                       }
-                      placeholder="e.g., Serene Valley Farmhouse"
+                      placeholder="Describe the property..."
+                      rows={3}
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="add-location">Location</Label>
-                    <Input
-                      id="add-location"
-                      value={addForm.location}
-                      onChange={(e) =>
-                        setAddForm((prev) => ({
-                          ...prev,
-                          location: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., Shamirpet, Hyderabad"
-                      required
-                    />
+                  <div className="grid md:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="add-price">Price per Night</Label>
+                      <Input
+                        id="add-price"
+                        type="number"
+                        value={addForm.price_per_night}
+                        onChange={(e) =>
+                          setAddForm((prev) => ({
+                            ...prev,
+                            price_per_night: e.target.value,
+                          }))
+                        }
+                        placeholder="8500"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="add-guests">Max Guests</Label>
+                      <Input
+                        id="add-guests"
+                        type="number"
+                        value={addForm.max_guests}
+                        onChange={(e) =>
+                          setAddForm((prev) => ({
+                            ...prev,
+                            max_guests: e.target.value,
+                          }))
+                        }
+                        placeholder="8"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="add-bedrooms">Bedrooms</Label>
+                      <Input
+                        id="add-bedrooms"
+                        type="number"
+                        value={addForm.bedrooms}
+                        onChange={(e) =>
+                          setAddForm((prev) => ({
+                            ...prev,
+                            bedrooms: e.target.value,
+                          }))
+                        }
+                        placeholder="3"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="add-bathrooms">Bathrooms</Label>
+                      <Input
+                        id="add-bathrooms"
+                        type="number"
+                        value={addForm.bathrooms}
+                        onChange={(e) =>
+                          setAddForm((prev) => ({
+                            ...prev,
+                            bathrooms: e.target.value,
+                          }))
+                        }
+                        placeholder="2"
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="add-description">Description</Label>
-                  <Textarea
-                    id="add-description"
-                    value={addForm.description}
-                    onChange={(e) =>
-                      setAddForm((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    placeholder="Describe the property..."
-                    rows={3}
-                    required
-                  />
-                </div>
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="add-price">Price per Night</Label>
-                    <Input
-                      id="add-price"
-                      type="number"
-                      value={addForm.price_per_night}
-                      onChange={(e) =>
-                        setAddForm((prev) => ({
-                          ...prev,
-                          price_per_night: e.target.value,
-                        }))
-                      }
-                      placeholder="8500"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="add-guests">Max Guests</Label>
-                    <Input
-                      id="add-guests"
-                      type="number"
-                      value={addForm.max_guests}
-                      onChange={(e) =>
-                        setAddForm((prev) => ({
-                          ...prev,
-                          max_guests: e.target.value,
-                        }))
-                      }
-                      placeholder="8"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="add-bedrooms">Bedrooms</Label>
-                    <Input
-                      id="add-bedrooms"
-                      type="number"
-                      value={addForm.bedrooms}
-                      onChange={(e) =>
-                        setAddForm((prev) => ({
-                          ...prev,
-                          bedrooms: e.target.value,
-                        }))
-                      }
-                      placeholder="3"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="add-bathrooms">Bathrooms</Label>
-                    <Input
-                      id="add-bathrooms"
-                      type="number"
-                      value={addForm.bathrooms}
-                      onChange={(e) =>
-                        setAddForm((prev) => ({
-                          ...prev,
-                          bathrooms: e.target.value,
-                        }))
-                      }
-                      placeholder="2"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="add-rating">Rating (0-5)</Label>
-                    <Input
-                      id="add-rating"
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="5"
-                      value={addForm.rating}
-                      onChange={(e) =>
-                        setAddForm((prev) => ({
-                          ...prev,
-                          rating: e.target.value,
-                        }))
-                      }
-                      placeholder="4.5"
-                    />
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="add-rating">Rating (0-5)</Label>
+                      <Input
+                        id="add-rating"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="5"
+                        value={addForm.rating}
+                        onChange={(e) =>
+                          setAddForm((prev) => ({
+                            ...prev,
+                            rating: e.target.value,
+                          }))
+                        }
+                        placeholder="4.5"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="add-total-reviews">Total Reviews</Label>
+                      <Input
+                        id="add-total-reviews"
+                        type="number"
+                        min="0"
+                        value={addForm.total_reviews}
+                        onChange={(e) =>
+                          setAddForm((prev) => ({
+                            ...prev,
+                            total_reviews: e.target.value,
+                          }))
+                        }
+                        placeholder="25"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="add-total-reviews">Total Reviews</Label>
-                    <Input
-                      id="add-total-reviews"
-                      type="number"
-                      min="0"
-                      value={addForm.total_reviews}
-                      onChange={(e) =>
-                        setAddForm((prev) => ({
-                          ...prev,
-                          total_reviews: e.target.value,
-                        }))
-                      }
-                      placeholder="25"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Amenities</Label>
-                  <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
-                    {AMENITIES_OPTIONS.map((amenity) => (
-                      <div
-                        key={amenity}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={`add-${amenity}`}
-                          checked={addForm.amenities.includes(amenity)}
-                          onCheckedChange={() =>
-                            handleAddAmenityToggle(amenity)
-                          }
-                        />
-                        <Label htmlFor={`add-${amenity}`} className="text-sm">
-                          {amenity}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Images</Label>
-                  <div className="flex space-x-2">
-                    <Input
-                      value={addImageUrl}
-                      onChange={(e) => setAddImageUrl(e.target.value)}
-                      placeholder="Enter image URL"
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      onClick={addNewImageUrl}
-                      variant="outline"
-                      className="cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  {addForm.images.length > 0 && (
-                    <div className="space-y-1 max-h-24 overflow-y-auto">
-                      {addForm.images.map((url, index) => (
+                    <Label>Amenities</Label>
+                    <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
+                      {AMENITIES_OPTIONS.map((amenity) => (
                         <div
-                          key={index}
-                          className="flex items-center space-x-2 text-sm"
+                          key={amenity}
+                          className="flex items-center space-x-2"
                         >
-                          <span className="flex-1 truncate">{url}</span>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => removeNewImage(index)}
-                            className="cursor-pointer"
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
+                          <Checkbox
+                            id={`add-${amenity}`}
+                            checked={addForm.amenities.includes(amenity)}
+                            onCheckedChange={() =>
+                              handleAddAmenityToggle(amenity)
+                            }
+                          />
+                          <Label htmlFor={`add-${amenity}`} className="text-sm">
+                            {amenity}
+                          </Label>
                         </div>
                       ))}
                     </div>
-                  )}
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsAddDialogOpen(false)}
-                    className="cursor-pointer"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={addLoading}
-                    className="bg-green-600 hover:bg-green-700 cursor-pointer"
-                  >
-                    {addLoading ? "Creating..." : "Create Property"}
-                  </Button>
-                </div>
-              </form>
-            </CustomDialogContent>
-          </Dialog>
-        </div>
-
-        <div className="grid gap-6">
-          {properties.map((property) => (
-            <Card key={property.id} className="overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0">
-                    {property.images && property.images.length > 0 ? (
-                      <Image
-                        src={property.images[0]}
-                        alt={property.name}
-                        width={120}
-                        height={80}
-                        className="rounded-lg object-cover"
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Images</Label>
+                    <div className="flex space-x-2">
+                      <Input
+                        value={addImageUrl}
+                        onChange={(e) => setAddImageUrl(e.target.value)}
+                        placeholder="Enter image URL"
+                        className="flex-1"
                       />
-                    ) : (
-                      <div className="w-30 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <Home className="w-8 h-8 text-gray-400" />
+                      <Button
+                        type="button"
+                        onClick={addNewImageUrl}
+                        variant="outline"
+                        className="cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {addForm.images.length > 0 && (
+                      <div className="space-y-1 max-h-24 overflow-y-auto">
+                        {addForm.images.map((url, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2 text-sm"
+                          >
+                            <span className="flex-1 truncate">{url}</span>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => removeNewImage(index)}
+                              className="cursor-pointer"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsAddDialogOpen(false)}
+                      className="cursor-pointer"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={addLoading}
+                      className="bg-green-600 hover:bg-green-700 cursor-pointer"
+                    >
+                      {addLoading ? "Creating..." : "Create Property"}
+                    </Button>
+                  </div>
+                </form>
+              </CustomDialogContent>
+            </Dialog>
+          </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
+          <div className="grid gap-6">
+            {properties.map((property) => (
+              <Card key={property.id} className="overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0">
+                      {property.images && property.images.length > 0 ? (
+                        <Image
+                          src={property.images[0]}
+                          alt={property.name}
+                          width={120}
+                          height={80}
+                          className="rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="w-30 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                          <Home className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {property.name}
+                            </h3>
+                            <Badge
+                              className={
+                                property.is_active
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }
+                            >
+                              {property.is_active ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
+
+                          <div className="flex items-center space-x-4 text-sm text-gray-600">
+                            <div className="flex items-center space-x-1">
+                              <MapPin className="w-4 h-4" />
+                              <span>{property.location}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Users className="w-4 h-4" />
+                              <span>{property.max_guests} guests</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <DollarSign className="w-4 h-4" />
+                              <span>₹{property.price_per_night}/night</span>
+                            </div>
+                          </div>
+
+                          <p className="text-sm text-gray-600">
+                            Owner: {property.users?.full_name || "Unknown"} (
+                            {property.users?.email || "No email"})
+                          </p>
+                        </div>
+
                         <div className="flex items-center space-x-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {property.name}
-                          </h3>
-                          <Badge
-                            className={
-                              property.is_active
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }
+                          <Dialog
+                            open={isEditDialogOpen}
+                            onOpenChange={setIsEditDialogOpen}
                           >
-                            {property.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-
-                        <div className="flex items-center space-x-4 text-sm text-gray-600">
-                          <div className="flex items-center space-x-1">
-                            <MapPin className="w-4 h-4" />
-                            <span>{property.location}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Users className="w-4 h-4" />
-                            <span>{property.max_guests} guests</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <DollarSign className="w-4 h-4" />
-                            <span>₹{property.price_per_night}/night</span>
-                          </div>
-                        </div>
-
-                        <p className="text-sm text-gray-600">
-                          Owner: {property.users?.full_name || "Unknown"} (
-                          {property.users?.email || "No email"})
-                        </p>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Dialog
-                          open={isEditDialogOpen}
-                          onOpenChange={setIsEditDialogOpen}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openEditDialog(property)}
-                              className="text-blue-600 hover:text-blue-700 cursor-pointer"
-                            >
-                              <Edit className="w-4 h-4 mr-1" />
-                              Edit
-                            </Button>
-                          </DialogTrigger>
-                          <CustomDialogContent className="w-[80vw] max-w-none h-[80vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>Edit Property</DialogTitle>
-                            </DialogHeader>
-                            <form
-                              onSubmit={handleEditSubmit}
-                              className="space-y-6"
-                            >
-                              <div className="grid md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="name">Property Name</Label>
-                                  <Input
-                                    id="name"
-                                    value={editForm.name}
-                                    onChange={(e) =>
-                                      setEditForm((prev) => ({
-                                        ...prev,
-                                        name: e.target.value,
-                                      }))
-                                    }
-                                    required
-                                  />
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEditDialog(property)}
+                                className="text-blue-600 hover:text-blue-700 cursor-pointer"
+                              >
+                                <Edit className="w-4 h-4 mr-1" />
+                                Edit
+                              </Button>
+                            </DialogTrigger>
+                            <CustomDialogContent className="w-[80vw] max-w-none h-[80vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Edit Property</DialogTitle>
+                              </DialogHeader>
+                              <form
+                                onSubmit={handleEditSubmit}
+                                className="space-y-6"
+                              >
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="name">Property Name</Label>
+                                    <Input
+                                      id="name"
+                                      value={editForm.name}
+                                      onChange={(e) =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          name: e.target.value,
+                                        }))
+                                      }
+                                      required
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="location">Location</Label>
+                                    <Input
+                                      id="location"
+                                      value={editForm.location}
+                                      onChange={(e) =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          location: e.target.value,
+                                        }))
+                                      }
+                                      required
+                                    />
+                                  </div>
                                 </div>
                                 <div className="space-y-2">
-                                  <Label htmlFor="location">Location</Label>
-                                  <Input
-                                    id="location"
-                                    value={editForm.location}
-                                    onChange={(e) =>
-                                      setEditForm((prev) => ({
-                                        ...prev,
-                                        location: e.target.value,
-                                      }))
-                                    }
-                                    required
-                                  />
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="description">Description</Label>
-                                <Textarea
-                                  id="description"
-                                  value={editForm.description}
-                                  onChange={(e) =>
-                                    setEditForm((prev) => ({
-                                      ...prev,
-                                      description: e.target.value,
-                                    }))
-                                  }
-                                  rows={3}
-                                  required
-                                />
-                              </div>
-                              <div className="grid md:grid-cols-4 gap-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="price">Price per Night</Label>
-                                  <Input
-                                    id="price"
-                                    type="number"
-                                    value={editForm.price_per_night}
-                                    onChange={(e) =>
-                                      setEditForm((prev) => ({
-                                        ...prev,
-                                        price_per_night: e.target.value,
-                                      }))
-                                    }
-                                    required
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="guests">Max Guests</Label>
-                                  <Input
-                                    id="guests"
-                                    type="number"
-                                    value={editForm.max_guests}
-                                    onChange={(e) =>
-                                      setEditForm((prev) => ({
-                                        ...prev,
-                                        max_guests: e.target.value,
-                                      }))
-                                    }
-                                    required
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="bedrooms">Bedrooms</Label>
-                                  <Input
-                                    id="bedrooms"
-                                    type="number"
-                                    value={editForm.bedrooms}
-                                    onChange={(e) =>
-                                      setEditForm((prev) => ({
-                                        ...prev,
-                                        bedrooms: e.target.value,
-                                      }))
-                                    }
-                                    required
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="bathrooms">Bathrooms</Label>
-                                  <Input
-                                    id="bathrooms"
-                                    type="number"
-                                    value={editForm.bathrooms}
-                                    onChange={(e) =>
-                                      setEditForm((prev) => ({
-                                        ...prev,
-                                        bathrooms: e.target.value,
-                                      }))
-                                    }
-                                    required
-                                  />
-                                </div>
-                              </div>
-                              <div className="grid md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="rating">Rating (0-5)</Label>
-                                  <Input
-                                    id="rating"
-                                    type="number"
-                                    step="0.1"
-                                    min="0"
-                                    max="5"
-                                    value={editForm.rating}
-                                    onChange={(e) =>
-                                      setEditForm((prev) => ({
-                                        ...prev,
-                                        rating: e.target.value,
-                                      }))
-                                    }
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="total-reviews">
-                                    Total Reviews
+                                  <Label htmlFor="description">
+                                    Description
                                   </Label>
-                                  <Input
-                                    id="total-reviews"
-                                    type="number"
-                                    min="0"
-                                    value={editForm.total_reviews}
+                                  <Textarea
+                                    id="description"
+                                    value={editForm.description}
                                     onChange={(e) =>
                                       setEditForm((prev) => ({
                                         ...prev,
-                                        total_reviews: e.target.value,
+                                        description: e.target.value,
                                       }))
                                     }
+                                    rows={3}
+                                    required
                                   />
                                 </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label>Amenities</Label>
-                                <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
-                                  {AMENITIES_OPTIONS.map((amenity) => (
-                                    <div
-                                      key={amenity}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <Checkbox
-                                        id={`edit-${amenity}`}
-                                        checked={editForm.amenities.includes(
-                                          amenity
-                                        )}
-                                        onCheckedChange={() =>
-                                          handleAmenityToggle(amenity)
-                                        }
-                                      />
-                                      <Label
-                                        htmlFor={`edit-${amenity}`}
-                                        className="text-sm"
-                                      >
-                                        {amenity}
-                                      </Label>
-                                    </div>
-                                  ))}
+                                <div className="grid md:grid-cols-4 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="price">
+                                      Price per Night
+                                    </Label>
+                                    <Input
+                                      id="price"
+                                      type="number"
+                                      value={editForm.price_per_night}
+                                      onChange={(e) =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          price_per_night: e.target.value,
+                                        }))
+                                      }
+                                      required
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="guests">Max Guests</Label>
+                                    <Input
+                                      id="guests"
+                                      type="number"
+                                      value={editForm.max_guests}
+                                      onChange={(e) =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          max_guests: e.target.value,
+                                        }))
+                                      }
+                                      required
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="bedrooms">Bedrooms</Label>
+                                    <Input
+                                      id="bedrooms"
+                                      type="number"
+                                      value={editForm.bedrooms}
+                                      onChange={(e) =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          bedrooms: e.target.value,
+                                        }))
+                                      }
+                                      required
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="bathrooms">Bathrooms</Label>
+                                    <Input
+                                      id="bathrooms"
+                                      type="number"
+                                      value={editForm.bathrooms}
+                                      onChange={(e) =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          bathrooms: e.target.value,
+                                        }))
+                                      }
+                                      required
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label>Images</Label>
-                                <div className="flex space-x-2">
-                                  <Input
-                                    value={newImageUrl}
-                                    onChange={(e) =>
-                                      setNewImageUrl(e.target.value)
-                                    }
-                                    placeholder="Enter image URL"
-                                    className="flex-1"
-                                  />
-                                  <Button
-                                    type="button"
-                                    onClick={addEditImageUrl}
-                                    variant="outline"
-                                    className="cursor-pointer"
-                                  >
-                                    <Plus className="w-4 h-4" />
-                                  </Button>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="rating">Rating (0-5)</Label>
+                                    <Input
+                                      id="rating"
+                                      type="number"
+                                      step="0.1"
+                                      min="0"
+                                      max="5"
+                                      value={editForm.rating}
+                                      onChange={(e) =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          rating: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="total-reviews">
+                                      Total Reviews
+                                    </Label>
+                                    <Input
+                                      id="total-reviews"
+                                      type="number"
+                                      min="0"
+                                      value={editForm.total_reviews}
+                                      onChange={(e) =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          total_reviews: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
                                 </div>
-                                {editForm.images.length > 0 && (
-                                  <div className="space-y-1 max-h-24 overflow-y-auto">
-                                    {editForm.images.map((url, index) => (
+                                <div className="space-y-2">
+                                  <Label>Amenities</Label>
+                                  <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
+                                    {AMENITIES_OPTIONS.map((amenity) => (
                                       <div
-                                        key={index}
-                                        className="flex items-center space-x-2 text-sm"
+                                        key={amenity}
+                                        className="flex items-center space-x-2"
                                       >
-                                        <span className="flex-1 truncate">
-                                          {url}
-                                        </span>
-                                        <Button
-                                          type="button"
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => removeEditImage(index)}
-                                          className="cursor-pointer"
+                                        <Checkbox
+                                          id={`edit-${amenity}`}
+                                          checked={editForm.amenities.includes(
+                                            amenity
+                                          )}
+                                          onCheckedChange={() =>
+                                            handleAmenityToggle(amenity)
+                                          }
+                                        />
+                                        <Label
+                                          htmlFor={`edit-${amenity}`}
+                                          className="text-sm"
                                         >
-                                          <X className="w-3 h-3" />
-                                        </Button>
+                                          {amenity}
+                                        </Label>
                                       </div>
                                     ))}
                                   </div>
-                                )}
-                              </div>
-                              <div className="flex justify-end space-x-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => setIsEditDialogOpen(false)}
-                                  className="cursor-pointer"
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  type="submit"
-                                  disabled={editLoading}
-                                  className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-                                >
-                                  {editLoading
-                                    ? "Updating..."
-                                    : "Update Property"}
-                                </Button>
-                              </div>
-                            </form>
-                          </CustomDialogContent>
-                        </Dialog>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            updatePropertyStatus(
-                              property.id,
-                              !property.is_active
-                            )
-                          }
-                          className={
-                            property.is_active
-                              ? "text-red-600 hover:text-red-700 cursor-pointer"
-                              : "text-green-600 hover:text-green-700 cursor-pointer"
-                          }
-                        >
-                          {property.is_active ? (
-                            <>
-                              <X className="w-4 h-4 mr-1" />
-                              Deactivate
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-4 h-4 mr-1" />
-                              Activate
-                            </>
-                          )}
-                        </Button>
-                        <Link href={`/properties/${property.id}`}>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Images</Label>
+                                  <div className="flex space-x-2">
+                                    <Input
+                                      value={newImageUrl}
+                                      onChange={(e) =>
+                                        setNewImageUrl(e.target.value)
+                                      }
+                                      placeholder="Enter image URL"
+                                      className="flex-1"
+                                    />
+                                    <Button
+                                      type="button"
+                                      onClick={addEditImageUrl}
+                                      variant="outline"
+                                      className="cursor-pointer"
+                                    >
+                                      <Plus className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                  {editForm.images.length > 0 && (
+                                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                                      {editForm.images.map((url, index) => (
+                                        <div
+                                          key={index}
+                                          className="flex items-center space-x-2 text-sm"
+                                        >
+                                          <span className="flex-1 truncate">
+                                            {url}
+                                          </span>
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() =>
+                                              removeEditImage(index)
+                                            }
+                                            className="cursor-pointer"
+                                          >
+                                            <X className="w-3 h-3" />
+                                          </Button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex justify-end space-x-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setIsEditDialogOpen(false)}
+                                    className="cursor-pointer"
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    type="submit"
+                                    disabled={editLoading}
+                                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                                  >
+                                    {editLoading
+                                      ? "Updating..."
+                                      : "Update Property"}
+                                  </Button>
+                                </div>
+                              </form>
+                            </CustomDialogContent>
+                          </Dialog>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-blue-600 hover:text-blue-700 cursor-pointer"
+                            onClick={() =>
+                              updatePropertyStatus(
+                                property.id,
+                                !property.is_active
+                              )
+                            }
+                            className={
+                              property.is_active
+                                ? "text-red-600 hover:text-red-700 cursor-pointer"
+                                : "text-green-600 hover:text-green-700 cursor-pointer"
+                            }
                           >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
+                            {property.is_active ? (
+                              <>
+                                <X className="w-4 h-4 mr-1" />
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                <Check className="w-4 h-4 mr-1" />
+                                Activate
+                              </>
+                            )}
                           </Button>
-                        </Link>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => deleteProperty(property.id)}
-                          className="text-red-600 hover:text-red-700 cursor-pointer"
-                        >
-                          Deactivate
-                        </Button>
+                          <Link
+                            href={`/properties/${property.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-blue-600 hover:text-blue-700 cursor-pointer"
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteProperty(property.id)}
+                            className="text-red-600 hover:text-red-700 cursor-pointer"
+                          >
+                            Deactivate
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

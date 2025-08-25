@@ -141,98 +141,103 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminNavbar currentPage="settings" />
+    <>
+      <title>Site Settings - Admin Panel</title>
+      <div className="min-h-screen bg-gray-50">
+        <AdminNavbar currentPage="settings" />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Site Settings</h1>
-          <p className="text-gray-600">Configure your platform settings</p>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Site Settings</h1>
+            <p className="text-gray-600">Configure your platform settings</p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Settings className="w-5 h-5" />
+                <span>General Settings</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="site_name">Site Name</Label>
+                  <Input
+                    id="site_name"
+                    value={settings.site_name}
+                    onChange={(e) =>
+                      handleInputChange("site_name", e.target.value)
+                    }
+                    placeholder="FarmStay Oasis"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact_email">Contact Email</Label>
+                  <Input
+                    id="contact_email"
+                    type="email"
+                    value={settings.contact_email}
+                    onChange={(e) =>
+                      handleInputChange("contact_email", e.target.value)
+                    }
+                    placeholder="info@farmstayoasis.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="site_description">Site Description</Label>
+                <Textarea
+                  id="site_description"
+                  value={settings.site_description}
+                  onChange={(e) =>
+                    handleInputChange("site_description", e.target.value)
+                  }
+                  placeholder="Discover authentic farm experiences..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="contact_phone">Contact Phone</Label>
+                  <Input
+                    id="contact_phone"
+                    value={settings.contact_phone}
+                    onChange={(e) =>
+                      handleInputChange("contact_phone", e.target.value)
+                    }
+                    placeholder="+91 99999 88888"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    value={settings.address}
+                    onChange={(e) =>
+                      handleInputChange("address", e.target.value)
+                    }
+                    placeholder="Hyderabad, Telangana, India"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {saving ? "Saving..." : "Save Settings"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Settings className="w-5 h-5" />
-              <span>General Settings</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="site_name">Site Name</Label>
-                <Input
-                  id="site_name"
-                  value={settings.site_name}
-                  onChange={(e) =>
-                    handleInputChange("site_name", e.target.value)
-                  }
-                  placeholder="FarmStay Oasis"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="contact_email">Contact Email</Label>
-                <Input
-                  id="contact_email"
-                  type="email"
-                  value={settings.contact_email}
-                  onChange={(e) =>
-                    handleInputChange("contact_email", e.target.value)
-                  }
-                  placeholder="info@farmstayoasis.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="site_description">Site Description</Label>
-              <Textarea
-                id="site_description"
-                value={settings.site_description}
-                onChange={(e) =>
-                  handleInputChange("site_description", e.target.value)
-                }
-                placeholder="Discover authentic farm experiences..."
-                rows={3}
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="contact_phone">Contact Phone</Label>
-                <Input
-                  id="contact_phone"
-                  value={settings.contact_phone}
-                  onChange={(e) =>
-                    handleInputChange("contact_phone", e.target.value)
-                  }
-                  placeholder="+91 99999 88888"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  value={settings.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  placeholder="Hyderabad, Telangana, India"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <Button
-                onClick={handleSave}
-                disabled={saving}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {saving ? "Saving..." : "Save Settings"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
-    </div>
+    </>
   );
 }

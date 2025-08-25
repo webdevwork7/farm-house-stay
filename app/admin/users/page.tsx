@@ -290,191 +290,201 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminNavbar currentPage="users" />
+    <>
+      <title>User Management - Admin Panel</title>
+      <div className="min-h-screen bg-gray-50">
+        <AdminNavbar currentPage="users" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600">Manage user accounts and roles</p>
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              User Management
+            </h1>
+            <p className="text-gray-600">Manage user accounts and roles</p>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Users className="w-5 h-5" />
-              <span>All Users ({users.length})</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="space-y-1">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Users className="w-5 h-5" />
+                <span>All Users ({users.length})</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2">
+                        <p className="font-semibold">{user.full_name}</p>
+                        <Badge className={getRoleBadgeColor(user.role)}>
+                          <div className="flex items-center space-x-1">
+                            {getRoleIcon(user.role)}
+                            <span>{user.role}</span>
+                          </div>
+                        </Badge>
+                        <Badge
+                          className={
+                            user.is_active
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }
+                        >
+                          {user.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600">{user.email}</p>
+                      {user.phone && (
+                        <p className="text-sm text-gray-500">{user.phone}</p>
+                      )}
+                    </div>
                     <div className="flex items-center space-x-2">
-                      <p className="font-semibold">{user.full_name}</p>
-                      <Badge className={getRoleBadgeColor(user.role)}>
-                        <div className="flex items-center space-x-1">
-                          {getRoleIcon(user.role)}
-                          <span>{user.role}</span>
-                        </div>
-                      </Badge>
-                      <Badge
-                        className={
-                          user.is_active
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
+                      <Select
+                        value={user.role}
+                        onValueChange={(newRole) =>
+                          updateUserRole(user.id, newRole)
                         }
                       >
-                        {user.is_active ? "Active" : "Inactive"}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600">{user.email}</p>
-                    {user.phone && (
-                      <p className="text-sm text-gray-500">{user.phone}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Select
-                      value={user.role}
-                      onValueChange={(newRole) =>
-                        updateUserRole(user.id, newRole)
-                      }
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="visitor">Visitor</SelectItem>
-                        <SelectItem value="owner">Owner</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Dialog>
-                      <DialogTrigger asChild>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="visitor">Visitor</SelectItem>
+                          <SelectItem value="owner">Owner</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditDialog(user)}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Edit User</DialogTitle>
+                          </DialogHeader>
+                          <form
+                            onSubmit={handleEditSubmit}
+                            className="space-y-4"
+                          >
+                            <div className="space-y-2">
+                              <Label htmlFor="full_name">Full Name</Label>
+                              <Input
+                                id="full_name"
+                                value={editForm.full_name}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    full_name: e.target.value,
+                                  }))
+                                }
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="email">Email</Label>
+                              <Input
+                                id="email"
+                                type="email"
+                                value={editForm.email}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    email: e.target.value,
+                                  }))
+                                }
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="phone">Phone</Label>
+                              <Input
+                                id="phone"
+                                value={editForm.phone}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    phone: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="role">Role</Label>
+                              <Select
+                                value={editForm.role}
+                                onValueChange={(value) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    role: value,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="visitor">
+                                    Visitor
+                                  </SelectItem>
+                                  <SelectItem value="owner">Owner</SelectItem>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                              <Button type="button" variant="outline">
+                                Cancel
+                              </Button>
+                              <Button
+                                type="submit"
+                                className="bg-blue-600 hover:bg-blue-700"
+                              >
+                                Update User
+                              </Button>
+                            </div>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                      {user.is_active ? (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => openEditDialog(user)}
-                          className="text-blue-600 hover:text-blue-700"
+                          onClick={() => deactivateUser(user.id)}
+                          className="text-red-600 hover:text-red-700"
                         >
-                          <Edit className="w-4 h-4 mr-1" />
-                          Edit
+                          <UserX className="w-4 h-4 mr-1" />
+                          Deactivate
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Edit User</DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleEditSubmit} className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="full_name">Full Name</Label>
-                            <Input
-                              id="full_name"
-                              value={editForm.full_name}
-                              onChange={(e) =>
-                                setEditForm((prev) => ({
-                                  ...prev,
-                                  full_name: e.target.value,
-                                }))
-                              }
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              value={editForm.email}
-                              onChange={(e) =>
-                                setEditForm((prev) => ({
-                                  ...prev,
-                                  email: e.target.value,
-                                }))
-                              }
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="phone">Phone</Label>
-                            <Input
-                              id="phone"
-                              value={editForm.phone}
-                              onChange={(e) =>
-                                setEditForm((prev) => ({
-                                  ...prev,
-                                  phone: e.target.value,
-                                }))
-                              }
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="role">Role</Label>
-                            <Select
-                              value={editForm.role}
-                              onValueChange={(value) =>
-                                setEditForm((prev) => ({
-                                  ...prev,
-                                  role: value,
-                                }))
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="visitor">Visitor</SelectItem>
-                                <SelectItem value="owner">Owner</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="flex justify-end space-x-2">
-                            <Button type="button" variant="outline">
-                              Cancel
-                            </Button>
-                            <Button
-                              type="submit"
-                              className="bg-blue-600 hover:bg-blue-700"
-                            >
-                              Update User
-                            </Button>
-                          </div>
-                        </form>
-                      </DialogContent>
-                    </Dialog>
-                    {user.is_active ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deactivateUser(user.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <UserX className="w-4 h-4 mr-1" />
-                        Deactivate
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => activateUser(user.id)}
-                        className="text-green-600 hover:text-green-700"
-                      >
-                        <User className="w-4 h-4 mr-1" />
-                        Activate
-                      </Button>
-                    )}
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => activateUser(user.id)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <User className="w-4 h-4 mr-1" />
+                          Activate
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -25,7 +25,7 @@ async function getSiteSettings() {
     .select("key, value");
 
   const settingsMap: Record<string, string> = {
-    site_name: "FarmStay Oasis",
+    site_name: "Farm Feast Farm House",
     hero_description:
       "Escape to luxury farm houses within 40 miles of Hyderabad. Perfect for family getaways, corporate retreats, and special celebrations.",
   };
@@ -39,7 +39,7 @@ async function getSiteSettings() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const siteName = settings.site_name || "FarmStay Oasis";
+  const siteName = settings.site_name || "Farm Feast Farm House";
   const description =
     settings.hero_description ||
     "Escape to luxury farm houses within 40 miles of Hyderabad. Perfect for family getaways, corporate retreats, and special celebrations.";
@@ -47,10 +47,13 @@ export async function generateMetadata(): Promise<Metadata> {
     "https://zrzgqsfudgsbnrcmmfvk.supabase.co/storage/v1/object/public/images/logos/logo-1752963729950.png";
 
   return {
-    title: `${siteName} - Premium Farm House Rentals in Hyderabad`,
+    title: {
+      default: `${siteName} - Premium Farm House Rentals`,
+      template: `%s - ${siteName}`,
+    },
     description: description,
     keywords:
-      "farmstay, farm house rental, Hyderabad, weekend getaway, rural tourism, farm vacation, family retreat",
+      "farmstay, farm house rental, Hyderabad, weekend getaway, rural tourism, farm vacation, family retreat, authentic farm experience",
     authors: [{ name: siteName }],
     creator: siteName,
     publisher: siteName,
@@ -59,14 +62,14 @@ export async function generateMetadata(): Promise<Metadata> {
       address: false,
       telephone: false,
     },
-    metadataBase: new URL("https://farmstayoasis.com"),
+    metadataBase: new URL("https://farm-stay.vercel.app"),
     alternates: {
       canonical: "/",
     },
     openGraph: {
-      title: `${siteName} - Premium Farm House Rentals in Hyderabad`,
+      title: `${siteName} - Premium Farm House Rentals`,
       description: description,
-      url: "https://farmstayoasis.com",
+      url: "https://farm-stay.vercel.app",
       siteName: siteName,
       images: [
         {

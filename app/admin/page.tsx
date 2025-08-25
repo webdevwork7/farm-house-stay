@@ -26,6 +26,7 @@ export default function AdminDashboard() {
     totalRevenue: 0,
     pendingApprovals: 0,
   });
+  const [siteName, setSiteName] = useState("Farm Feast Farm House");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
@@ -55,13 +56,13 @@ export default function AdminDashboard() {
 
       // If user exists and is admin, proceed
       if (userData && userData.role === "admin") {
-        await fetchAdminStats();
+        await Promise.all([fetchAdminStats(), fetchSiteSettings()]);
         return;
       }
 
       // If user doesn't exist but email is admin@gmail.com, they should have access
       if (user.email === "admin@gmail.com") {
-        await fetchAdminStats();
+        await Promise.all([fetchAdminStats(), fetchSiteSettings()]);
         return;
       }
 
@@ -78,6 +79,23 @@ export default function AdminDashboard() {
       router.push("/auth/login");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSiteSettings = async () => {
+    try {
+      const supabase = createClient();
+      const { data: settings } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .eq("key", "site_name")
+        .single();
+
+      if (settings?.value) {
+        setSiteName(settings.value);
+      }
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
     }
   };
 
@@ -127,141 +145,148 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminNavbar currentPage="dashboard" />
+    <>
+      <title>Admin Dashboard - {siteName}</title>
+      <div className="min-h-screen bg-gray-50">
+        <AdminNavbar currentPage="dashboard" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600">
-            Manage your FarmStay Oasis platform from here.
-          </p>
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Admin Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Manage your {siteName} platform from here.
+            </p>
+          </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-              <Users className="h-5 w-5 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {stats.totalUsers}
-              </div>
-              <p className="text-sm text-gray-600">Registered users</p>
-            </CardContent>
-          </Card>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Users
+                </CardTitle>
+                <Users className="h-5 w-5 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-gray-900">
+                  {stats.totalUsers}
+                </div>
+                <p className="text-sm text-gray-600">Registered users</p>
+              </CardContent>
+            </Card>
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Properties
-              </CardTitle>
-              <Home className="h-5 w-5 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {stats.totalProperties}
-              </div>
-              <p className="text-sm text-gray-600">Listed farmstays</p>
-            </CardContent>
-          </Card>
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Properties
+                </CardTitle>
+                <Home className="h-5 w-5 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-gray-900">
+                  {stats.totalProperties}
+                </div>
+                <p className="text-sm text-gray-600">Listed farmstays</p>
+              </CardContent>
+            </Card>
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Bookings
-              </CardTitle>
-              <Calendar className="h-5 w-5 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {stats.totalBookings}
-              </div>
-              <p className="text-sm text-yellow-600 font-medium">
-                {stats.pendingApprovals} pending
-              </p>
-            </CardContent>
-          </Card>
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Bookings
+                </CardTitle>
+                <Calendar className="h-5 w-5 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-gray-900">
+                  {stats.totalBookings}
+                </div>
+                <p className="text-sm text-yellow-600 font-medium">
+                  {stats.pendingApprovals} pending
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Revenue
-              </CardTitle>
-              <DollarSign className="h-5 w-5 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                ₹{stats.totalRevenue.toLocaleString()}
-              </div>
-              <p className="text-sm text-gray-600">Platform revenue</p>
-            </CardContent>
-          </Card>
-        </div>
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Revenue
+                </CardTitle>
+                <DollarSign className="h-5 w-5 text-yellow-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-gray-900">
+                  ₹{stats.totalRevenue.toLocaleString()}
+                </div>
+                <p className="text-sm text-gray-600">Platform revenue</p>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Users className="w-5 h-5 text-blue-600" />
-                <span>User Management</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Manage user accounts, roles, and permissions.
-              </p>
-              <Link href="/admin/users">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
-                  Manage Users
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          {/* Quick Actions */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="w-5 h-5 text-blue-600" />
+                  <span>User Management</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Manage user accounts, roles, and permissions.
+                </p>
+                <Link href="/admin/users">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
+                    Manage Users
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Home className="w-5 h-5 text-green-600" />
-                <span>Property Management</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Review and manage all listed properties.
-              </p>
-              <Link href="/admin/properties">
-                <Button className="w-full bg-green-600 hover:bg-green-700 text-white cursor-pointer">
-                  Manage Properties
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Home className="w-5 h-5 text-green-600" />
+                  <span>Property Management</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Review and manage all listed properties.
+                </p>
+                <Link href="/admin/properties">
+                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white cursor-pointer">
+                    Manage Properties
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Settings className="w-5 h-5 text-gray-600" />
-                <span>Site Settings</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Configure site settings and preferences.
-              </p>
-              <Link href="/admin/settings">
-                <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white cursor-pointer">
-                  Site Settings
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="w-5 h-5 text-gray-600" />
+                  <span>Site Settings</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Configure site settings and preferences.
+                </p>
+                <Link href="/admin/settings">
+                  <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white cursor-pointer">
+                    Site Settings
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -208,129 +208,133 @@ export default function AdminBookingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminNavbar currentPage="bookings" />
+    <>
+      <title>Booking Management - Admin Panel</title>
+      <div className="min-h-screen bg-gray-50">
+        <AdminNavbar currentPage="bookings" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Booking Management
-          </h1>
-          <p className="text-gray-600">
-            Manage all booking requests and reservations
-          </p>
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Booking Management
+            </h1>
+            <p className="text-gray-600">
+              Manage all booking requests and reservations
+            </p>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="w-5 h-5" />
-              <span>All Bookings ({bookings.length})</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {bookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <h4 className="font-semibold">
-                        {booking.farmhouses?.name}
-                      </h4>
-                      <Badge className={getStatusBadgeColor(booking.status)}>
-                        {booking.status}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-1">
-                          <User className="w-4 h-4" />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Calendar className="w-5 h-5" />
+                <span>All Bookings ({bookings.length})</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {bookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <h4 className="font-semibold">
+                          {booking.farmhouses?.name}
+                        </h4>
+                        <Badge className={getStatusBadgeColor(booking.status)}>
+                          {booking.status}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-1">
+                            <User className="w-4 h-4" />
+                            <span>
+                              {booking.users?.full_name} ({booking.users?.email}
+                              )
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Home className="w-4 h-4" />
+                            <span>{booking.farmhouses?.location}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
                           <span>
-                            {booking.users?.full_name} ({booking.users?.email})
+                            Check-in:{" "}
+                            {format(
+                              new Date(booking.check_in_date),
+                              "MMM dd, yyyy"
+                            )}
+                          </span>
+                          <span>
+                            Check-out:{" "}
+                            {format(
+                              new Date(booking.check_out_date),
+                              "MMM dd, yyyy"
+                            )}
+                          </span>
+                          <span>Guests: {booking.guests}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <DollarSign className="w-4 h-4" />
+                          <span className="font-medium">
+                            ₹{booking.total_amount.toLocaleString()}
                           </span>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <Home className="w-4 h-4" />
-                          <span>{booking.farmhouses?.location}</span>
-                        </div>
+                        {booking.special_requests && (
+                          <div className="text-xs text-gray-500">
+                            Special requests: {booking.special_requests}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center space-x-4">
-                        <span>
-                          Check-in:{" "}
-                          {format(
-                            new Date(booking.check_in_date),
-                            "MMM dd, yyyy"
-                          )}
-                        </span>
-                        <span>
-                          Check-out:{" "}
-                          {format(
-                            new Date(booking.check_out_date),
-                            "MMM dd, yyyy"
-                          )}
-                        </span>
-                        <span>Guests: {booking.guests}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <DollarSign className="w-4 h-4" />
-                        <span className="font-medium">
-                          ₹{booking.total_amount.toLocaleString()}
-                        </span>
-                      </div>
-                      {booking.special_requests && (
-                        <div className="text-xs text-gray-500">
-                          Special requests: {booking.special_requests}
-                        </div>
-                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Select
+                        value={booking.status}
+                        onValueChange={(newStatus) =>
+                          updateBookingStatus(booking.id, newStatus)
+                        }
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="confirmed">Confirmed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => deleteBooking(booking.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Select
-                      value={booking.status}
-                      onValueChange={(newStatus) =>
-                        updateBookingStatus(booking.id, newStatus)
-                      }
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="confirmed">Confirmed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => deleteBooking(booking.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      Delete
-                    </Button>
+                ))}
+                {bookings.length === 0 && (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      No bookings found
+                    </h3>
+                    <p className="text-gray-600">
+                      Bookings will appear here once users start making
+                      reservations.
+                    </p>
                   </div>
-                </div>
-              ))}
-              {bookings.length === 0 && (
-                <div className="text-center py-8">
-                  <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    No bookings found
-                  </h3>
-                  <p className="text-gray-600">
-                    Bookings will appear here once users start making
-                    reservations.
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

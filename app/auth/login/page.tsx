@@ -107,69 +107,72 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      <Navbar currentPage="login" />
+    <>
+      <title>Sign In - Farm Feast Farm House</title>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+        <Navbar currentPage="login" />
 
-      <div className="flex items-center justify-center py-12 px-4">
-        <div className="w-full max-w-md">
-          <Card className="shadow-xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold text-green-800">
-                Welcome Back
-              </CardTitle>
-              <CardDescription>
-                Sign in to your FarmStay Oasis account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                {error && (
-                  <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                    {error}
+        <div className="flex items-center justify-center py-12 px-4">
+          <div className="w-full max-w-md">
+            <Card className="shadow-xl">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-bold text-green-800">
+                  Welcome Back
+                </CardTitle>
+                <CardDescription>
+                  Sign in to your FarmStay Oasis account
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
                   </div>
-                )}
-                <Button
-                  type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Signing in..." : "Sign In"}
-                </Button>
-              </form>
-              <div className="mt-6 text-center text-sm">
-                Don't have an account?{" "}
-                <Link
-                  href="/auth/register"
-                  className="text-green-600 hover:text-green-700 font-medium"
-                >
-                  Sign up
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                  {error && (
+                    <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                      {error}
+                    </div>
+                  )}
+                  <Button
+                    type="submit"
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Signing in..." : "Sign In"}
+                  </Button>
+                </form>
+                <div className="mt-6 text-center text-sm">
+                  Don't have an account?{" "}
+                  <Link
+                    href="/auth/register"
+                    className="text-green-600 hover:text-green-700 font-medium"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
