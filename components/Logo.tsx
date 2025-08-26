@@ -13,9 +13,9 @@ export default function Logo({
   showText = true,
 }: LogoProps) {
   const sizeClasses = {
-    sm: "w-6 h-6",
-    md: "w-8 h-8",
-    lg: "w-12 h-12",
+    sm: "w-18 h-18",
+    md: "w-24 h-24",
+    lg: "w-28 h-28",
   };
 
   const textSizeClasses = {
@@ -25,17 +25,16 @@ export default function Logo({
   };
 
   return (
-    <Link href="/" className="flex items-center space-x-3 cursor-pointer group">
-      <div className="relative">
+    <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
+      <div className="relative flex-shrink-0">
         <Image
           src="https://zrzgqsfudgsbnrcmmfvk.supabase.co/storage/v1/object/public/images/logos/logo-1752963729950.png"
           alt={`${siteName} Logo`}
-          width={size === "lg" ? 48 : size === "md" ? 32 : 24}
-          height={size === "lg" ? 48 : size === "md" ? 32 : 24}
-          className={`${sizeClasses[size]} rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200`}
+          width={size === "lg" ? 112 : size === "md" ? 96 : 72}
+          height={size === "lg" ? 112 : size === "md" ? 96 : 72}
+          className={`${sizeClasses[size]} object-contain group-hover:scale-105 transition-transform duration-200`}
+          priority
         />
-        {/* Optional glow effect */}
-        <div className="absolute inset-0 rounded-lg bg-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 blur-sm -z-10"></div>
       </div>
       {showText && (
         <div className="flex flex-col">

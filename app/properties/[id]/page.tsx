@@ -28,12 +28,10 @@ import {
   Utensils,
   CalendarIcon,
   ArrowLeft,
-  Heart,
   Share,
   Shield,
   Award,
   Phone,
-  Mail,
   CheckCircle,
   Camera,
   Clock,
@@ -85,7 +83,6 @@ export default function PropertyDetailPage() {
   const { toast } = useToast();
   const [isBooking, setIsBooking] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -395,22 +392,29 @@ export default function PropertyDetailPage() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm">
-                  <Share className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsFavorite(!isFavorite)}
-                  className={isFavorite ? "text-red-500 border-red-200" : ""}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: property.name,
+                        text: `Check out this amazing farmstay: ${property.name}`,
+                        url: window.location.href,
+                      });
+                    } else {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast({
+                        title: "Link Copied!",
+                        description:
+                          "Property link has been copied to clipboard.",
+                      });
+                    }
+                  }}
                 >
-                  <Heart
-                    className={`w-4 h-4 mr-2 ${
-                      isFavorite ? "fill-current" : ""
-                    }`}
-                  />
-                  {isFavorite ? "Saved" : "Save"}
+                  <Share className="w-4 h-4 mr-2" />
+                  Share
                 </Button>
               </div>
             </div>
@@ -545,58 +549,6 @@ export default function PropertyDetailPage() {
                   </div>
                 </div>
 
-                {/* Host Information */}
-                <div className="border-t pt-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                    Meet your host
-                  </h3>
-                  <Card className="border-0 shadow-lg">
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4 mb-4">
-                        <Image
-                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
-                          alt="Host profile"
-                          width={60}
-                          height={60}
-                          className="w-15 h-15 rounded-full object-cover"
-                        />
-                        <div>
-                          <h4 className="font-semibold text-gray-900">
-                            Rajesh Kumar
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            Host since 2020
-                          </p>
-                          <div className="flex items-center space-x-1 mt-1">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="text-sm font-medium">4.9</span>
-                            <span className="text-sm text-gray-600">
-                              (127 reviews)
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-gray-700 mb-4">
-                        Welcome to our family farm! We've been farming this land
-                        for three generations and love sharing the beauty of
-                        rural life with our guests. We're always happy to show
-                        you around the farm and share stories about our
-                        sustainable farming practices.
-                      </p>
-                      <div className="flex space-x-3">
-                        <Button variant="outline" size="sm">
-                          <Phone className="w-4 h-4 mr-2" />
-                          Contact Host
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Mail className="w-4 h-4 mr-2" />
-                          Message
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
                 {/* Reviews Section */}
                 <div className="border-t pt-6">
                   <div className="flex items-center justify-between mb-6">
@@ -674,22 +626,48 @@ export default function PropertyDetailPage() {
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     Where you'll be
                   </h3>
-                  <div className="bg-gray-100 rounded-lg p-6">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <MapPin className="w-5 h-5 text-green-600" />
-                      <span className="font-medium text-gray-900">
-                        {property.location}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mb-4">{property.address}</p>
-                    <div className="grid md:grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center space-x-2">
-                        <Clock className="w-4 h-4 text-gray-500" />
-                        <span>30 minutes from city center</span>
+                  <div className="space-y-4">
+                    <div className="bg-gray-100 rounded-lg p-6">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <MapPin className="w-5 h-5 text-green-600" />
+                        <span className="font-medium text-gray-900">
+                          {property.location}
+                        </span>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <TreePine className="w-4 h-4 text-gray-500" />
-                        <span>Surrounded by nature</span>
+                      <p className="text-gray-600 mb-4">{property.address}</p>
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <Clock className="w-4 h-4 text-gray-500" />
+                          <span>30 minutes from city center</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <TreePine className="w-4 h-4 text-gray-500" />
+                          <span>Surrounded by nature</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Interactive Map */}
+                    <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center relative overflow-hidden">
+                      <iframe
+                        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dOWTgHz-y-2b8s&q=${encodeURIComponent(
+                          property.location + ", " + property.address
+                        )}`}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="rounded-lg"
+                        title={`Map showing location of ${property.name}`}
+                      />
+                      <div className="absolute inset-0 bg-gray-300 flex items-center justify-center rounded-lg">
+                        <div className="text-center text-gray-600">
+                          <MapPin className="w-12 h-12 mx-auto mb-2" />
+                          <p className="font-medium">{property.location}</p>
+                          <p className="text-sm">{property.address}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -722,76 +700,160 @@ export default function PropertyDetailPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-4">
                     <div>
-                      <Label
-                        htmlFor="checkin"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Check-in
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Check-in Date
                       </Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal bg-transparent mt-1"
+                            className={`w-full justify-start text-left font-normal h-12 px-4 border-2 hover:border-green-300 focus:border-green-500 transition-colors ${
+                              bookingForm.check_in_date
+                                ? "text-gray-900 border-green-200"
+                                : "text-gray-500 border-gray-200"
+                            }`}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {bookingForm.check_in_date
-                              ? format(bookingForm.check_in_date, "MMM dd")
-                              : "Select date"}
+                            <CalendarIcon className="mr-3 h-5 w-5 text-green-600" />
+                            <span className="text-base">
+                              {bookingForm.check_in_date
+                                ? format(
+                                    bookingForm.check_in_date,
+                                    "MMM dd, yyyy"
+                                  )
+                                : "Select check-in date"}
+                            </span>
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={bookingForm.check_in_date}
-                            onSelect={(date) =>
-                              setBookingForm((prev) => ({
-                                ...prev,
-                                check_in_date: date,
-                              }))
-                            }
-                            disabled={(date) => date < new Date()}
-                            initialFocus
-                          />
+                        <PopoverContent
+                          className="w-auto p-0 shadow-xl border-0"
+                          align="start"
+                          sideOffset={8}
+                        >
+                          <div className="bg-white rounded-lg border shadow-lg">
+                            <Calendar
+                              mode="single"
+                              selected={bookingForm.check_in_date}
+                              onSelect={(date) =>
+                                setBookingForm((prev) => ({
+                                  ...prev,
+                                  check_in_date: date,
+                                }))
+                              }
+                              disabled={(date) => date < new Date()}
+                              initialFocus
+                              className="p-3"
+                              classNames={{
+                                months:
+                                  "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                                month: "space-y-4",
+                                caption:
+                                  "flex justify-center pt-1 relative items-center",
+                                caption_label: "text-sm font-medium",
+                                nav: "space-x-1 flex items-center",
+                                nav_button:
+                                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                                nav_button_previous: "absolute left-1",
+                                nav_button_next: "absolute right-1",
+                                table: "w-full border-collapse space-y-1",
+                                head_row: "flex",
+                                head_cell:
+                                  "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
+                                row: "flex w-full mt-2",
+                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-green-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-green-50 rounded-md transition-colors",
+                                day_selected:
+                                  "bg-green-600 text-white hover:bg-green-700 focus:bg-green-600 focus:text-white",
+                                day_today: "bg-gray-100 text-gray-900",
+                                day_outside: "text-gray-400 opacity-50",
+                                day_disabled: "text-gray-400 opacity-50",
+                                day_range_middle:
+                                  "aria-selected:bg-green-100 aria-selected:text-green-900",
+                                day_hidden: "invisible",
+                              }}
+                            />
+                          </div>
                         </PopoverContent>
                       </Popover>
                     </div>
+
                     <div>
-                      <Label
-                        htmlFor="checkout"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Check-out
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Check-out Date
                       </Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal bg-transparent mt-1"
+                            className={`w-full justify-start text-left font-normal h-12 px-4 border-2 hover:border-green-300 focus:border-green-500 transition-colors ${
+                              bookingForm.check_out_date
+                                ? "text-gray-900 border-green-200"
+                                : "text-gray-500 border-gray-200"
+                            }`}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {bookingForm.check_out_date
-                              ? format(bookingForm.check_out_date, "MMM dd")
-                              : "Select date"}
+                            <CalendarIcon className="mr-3 h-5 w-5 text-green-600" />
+                            <span className="text-base">
+                              {bookingForm.check_out_date
+                                ? format(
+                                    bookingForm.check_out_date,
+                                    "MMM dd, yyyy"
+                                  )
+                                : "Select check-out date"}
+                            </span>
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={bookingForm.check_out_date}
-                            onSelect={(date) =>
-                              setBookingForm((prev) => ({
-                                ...prev,
-                                check_out_date: date,
-                              }))
-                            }
-                            disabled={(date) =>
-                              date <= (bookingForm.check_in_date || new Date())
-                            }
-                            initialFocus
-                          />
+                        <PopoverContent
+                          className="w-auto p-0 shadow-xl border-0"
+                          align="start"
+                          sideOffset={8}
+                        >
+                          <div className="bg-white rounded-lg border shadow-lg">
+                            <Calendar
+                              mode="single"
+                              selected={bookingForm.check_out_date}
+                              onSelect={(date) =>
+                                setBookingForm((prev) => ({
+                                  ...prev,
+                                  check_out_date: date,
+                                }))
+                              }
+                              disabled={(date) =>
+                                date <=
+                                (bookingForm.check_in_date || new Date())
+                              }
+                              initialFocus
+                              className="p-3"
+                              classNames={{
+                                months:
+                                  "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                                month: "space-y-4",
+                                caption:
+                                  "flex justify-center pt-1 relative items-center",
+                                caption_label: "text-sm font-medium",
+                                nav: "space-x-1 flex items-center",
+                                nav_button:
+                                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                                nav_button_previous: "absolute left-1",
+                                nav_button_next: "absolute right-1",
+                                table: "w-full border-collapse space-y-1",
+                                head_row: "flex",
+                                head_cell:
+                                  "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
+                                row: "flex w-full mt-2",
+                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-green-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-green-50 rounded-md transition-colors",
+                                day_selected:
+                                  "bg-green-600 text-white hover:bg-green-700 focus:bg-green-600 focus:text-white",
+                                day_today: "bg-gray-100 text-gray-900",
+                                day_outside: "text-gray-400 opacity-50",
+                                day_disabled: "text-gray-400 opacity-50",
+                                day_range_middle:
+                                  "aria-selected:bg-green-100 aria-selected:text-green-900",
+                                day_hidden: "invisible",
+                              }}
+                            />
+                          </div>
                         </PopoverContent>
                       </Popover>
                     </div>
@@ -809,18 +871,39 @@ export default function PropertyDetailPage() {
                       type="number"
                       min="1"
                       max={property.max_guests}
-                      value={bookingForm.guests}
-                      onChange={(e) =>
-                        setBookingForm((prev) => ({
-                          ...prev,
-                          guests: Number.parseInt(e.target.value),
-                        }))
-                      }
-                      className="mt-1"
+                      value={bookingForm.guests.toString()}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "") {
+                          setBookingForm((prev) => ({
+                            ...prev,
+                            guests: 1,
+                          }));
+                        } else {
+                          const numValue = parseInt(value);
+                          if (!isNaN(numValue) && numValue >= 1) {
+                            setBookingForm((prev) => ({
+                              ...prev,
+                              guests: Math.min(numValue, property.max_guests),
+                            }));
+                          }
+                        }
+                      }}
+                      className={`mt-1 ${
+                        bookingForm.guests > property.max_guests
+                          ? "border-red-500 focus:border-red-500"
+                          : ""
+                      }`}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Maximum {property.max_guests} guests
-                    </p>
+                    {bookingForm.guests > property.max_guests ? (
+                      <p className="text-xs text-red-500 mt-1">
+                        Maximum {property.max_guests} guests allowed
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Maximum {property.max_guests} guests
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -913,6 +996,97 @@ export default function PropertyDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">FS</span>
+                  </div>
+                  <span className="text-xl font-bold">{siteName}</span>
+                </div>
+                <p className="text-gray-400">
+                  Connecting travelers with authentic farm experiences across
+                  India. Discover the beauty of rural life.
+                </p>
+                <div className="flex items-center space-x-2 text-gray-400">
+                  <Phone className="w-4 h-4" />
+                  <span>+91 99999 88888</span>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Quick Links</h3>
+                <div className="space-y-2">
+                  <Link
+                    href="/properties"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Browse Properties
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    About Us
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Contact
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">For Hosts</h3>
+                <div className="space-y-2">
+                  <Link
+                    href="/auth/register"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    List Your Property
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Owner Dashboard
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Host Support
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Contact Info</h3>
+                <div className="space-y-2 text-gray-400">
+                  <p>info@farmstayoasis.com</p>
+                  <p>+91 99999 88888</p>
+                  <p>Hyderabad, Telangana</p>
+                  <p>Available 24/7</p>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+              <p>
+                &copy; 2024 {siteName}. All rights reserved. | Bringing you
+                closer to nature, one farm at a time.
+              </p>
+            </div>
+          </div>
+        </footer>
       </div>
     </>
   );

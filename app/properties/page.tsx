@@ -25,6 +25,7 @@ import {
   Car,
   Coffee,
   CheckCircle,
+  Phone,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -432,6 +433,97 @@ export default function PropertiesPage() {
             </div>
           )}
         </div>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">FS</span>
+                  </div>
+                  <span className="text-xl font-bold">{siteName}</span>
+                </div>
+                <p className="text-gray-400">
+                  Connecting travelers with authentic farm experiences across
+                  India. Discover the beauty of rural life.
+                </p>
+                <div className="flex items-center space-x-2 text-gray-400">
+                  <Phone className="w-4 h-4" />
+                  <span>+91 99999 88888</span>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Quick Links</h3>
+                <div className="space-y-2">
+                  <Link
+                    href="/properties"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Browse Properties
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    About Us
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Contact
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">For Hosts</h3>
+                <div className="space-y-2">
+                  <Link
+                    href="/auth/register"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    List Your Property
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Owner Dashboard
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Host Support
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Contact Info</h3>
+                <div className="space-y-2 text-gray-400">
+                  <p>info@farmstayoasis.com</p>
+                  <p>+91 99999 88888</p>
+                  <p>Hyderabad, Telangana</p>
+                  <p>Available 24/7</p>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+              <p>
+                &copy; 2024 {siteName}. All rights reserved. | Bringing you
+                closer to nature, one farm at a time.
+              </p>
+            </div>
+          </div>
+        </footer>
       </div>
     </>
   );
