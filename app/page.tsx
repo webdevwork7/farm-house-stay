@@ -38,8 +38,16 @@ async function getSiteSettings() {
     .from("site_settings")
     .select("key, value");
 
-  // Default settings as fallback
-  const settingsMap: Record<string, string> = {
+  // Create settings map from database values
+  const settingsMap: Record<string, string> = {};
+
+  // First populate with database values
+  settings?.forEach((setting) => {
+    settingsMap[setting.key] = setting.value;
+  });
+
+  // Only use fallbacks if database values don't exist
+  const defaultSettings = {
     site_name: "FarmStay Oasis",
     contact_phone: "+91 99999 88888",
     contact_email: "info@farmstayoasis.com",
@@ -55,9 +63,11 @@ async function getSiteSettings() {
       "Book your perfect farmstay today and create memories that will last a lifetime.",
   };
 
-  // Override with database values if available
-  settings?.forEach((setting) => {
-    settingsMap[setting.key] = setting.value;
+  // Apply defaults only for missing keys
+  Object.keys(defaultSettings).forEach((key) => {
+    if (!settingsMap[key]) {
+      settingsMap[key] = defaultSettings[key as keyof typeof defaultSettings];
+    }
   });
 
   return settingsMap;
@@ -439,7 +449,7 @@ export default async function HomePage() {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-                  {settings.about_title || "About FarmStay Oasis"}
+                  {`About ${settings.site_name || "FarmStay Oasis"}`}
                 </h2>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   {settings.about_description ||
@@ -468,8 +478,8 @@ export default async function HomePage() {
               </div>
               <div className="relative">
                 <Image
-                  src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="Beautiful farmhouse in countryside"
+                  src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  alt="Beautiful farmhouse with lush green surroundings"
                   width={600}
                   height={500}
                   className="w-full h-auto rounded-2xl shadow-xl"

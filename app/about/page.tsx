@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -5,11 +9,34 @@ import { Star, Users, Shield, Heart, Award, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function AboutPage() {
+  const [siteName, setSiteName] = useState("Farm Feast Farm House");
+
+  useEffect(() => {
+    fetchSiteSettings();
+  }, []);
+
+  const fetchSiteSettings = async () => {
+    try {
+      const supabase = createClient();
+      const { data: settings } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .eq("key", "site_name")
+        .single();
+
+      if (settings?.value) {
+        setSiteName(settings.value);
+      }
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+    }
+  };
   return (
     <>
-      <title>About Us - Farm Feast Farm House</title>
+      <title>About Us - {siteName}</title>
       <div className="min-h-screen">
         <Navbar currentPage="about" />
 
@@ -21,7 +48,7 @@ export default function AboutPage() {
                 Our Story
               </Badge>
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900">
-                About <span className="text-green-600">FarmStay Oasis</span>
+                About <span className="text-green-600">{siteName}</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Connecting travelers with authentic farm experiences across
@@ -42,7 +69,7 @@ export default function AboutPage() {
                 </h2>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   Founded in 2020 by a group of farmers and travel enthusiasts,
-                  FarmStay Oasis was born from a simple belief: that the most
+                  {siteName} was born from a simple belief: that the most
                   meaningful travel experiences happen when we connect with
                   local communities and embrace authentic ways of life.
                 </p>
@@ -62,8 +89,8 @@ export default function AboutPage() {
               </div>
               <div className="relative">
                 <Image
-                  src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="Farmers working together in the field"
+                  src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  alt="Beautiful farmhouse with lush green surroundings"
                   width={600}
                   height={500}
                   className="w-full h-auto rounded-2xl shadow-xl"
@@ -189,7 +216,7 @@ export default function AboutPage() {
                 Meet Our Team
               </h2>
               <p className="text-xl text-gray-600">
-                The passionate people behind FarmStay Oasis
+                The passionate people behind {siteName}
               </p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -310,76 +337,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="bg-gray-900 text-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">FS</span>
-                  </div>
-                  <span className="text-xl font-bold">FarmStay Oasis</span>
-                </div>
-                <p className="text-gray-400">
-                  Connecting travelers with authentic farm experiences across
-                  India.
-                </p>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Quick Links</h3>
-                <div className="space-y-2">
-                  <Link
-                    href="/properties"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Browse Properties
-                  </Link>
-                  <Link
-                    href="/about"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    About Us
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Contact
-                  </Link>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">For Hosts</h3>
-                <div className="space-y-2">
-                  <Link
-                    href="/auth/sign-up?role=owner"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    List Your Property
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Owner Dashboard
-                  </Link>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Contact</h3>
-                <div className="space-y-2 text-gray-400">
-                  <p>info@farmstayoasis.com</p>
-                  <p>+91 99999 88888</p>
-                  <p>Hyderabad, Telangana</p>
-                </div>
-              </div>
-            </div>
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-              <p>&copy; 2024 FarmStay Oasis. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );

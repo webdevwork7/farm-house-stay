@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { createClient } from "@/lib/supabase/client";
 import {
   MapPin,
   Phone,
@@ -17,8 +18,9 @@ import {
   HeadphonesIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -28,7 +30,35 @@ export default function ContactPage() {
     subject: "",
     message: "",
   });
+  const [siteName, setSiteName] = useState("Farm Feast Farm House");
+  const [contactPhone, setContactPhone] = useState("+91 99999 88888");
+  const [contactEmail, setContactEmail] = useState(
+    "info@farmfeastfarmhouse.com"
+  );
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchSiteSettings();
+  }, []);
+
+  const fetchSiteSettings = async () => {
+    try {
+      const supabase = createClient();
+      const { data: settings } = await supabase
+        .from("site_settings")
+        .select("key, value");
+
+      if (settings) {
+        settings.forEach((setting) => {
+          if (setting.key === "site_name") setSiteName(setting.value);
+          if (setting.key === "contact_phone") setContactPhone(setting.value);
+          if (setting.key === "contact_email") setContactEmail(setting.value);
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +84,7 @@ export default function ContactPage() {
 
   return (
     <>
-      <title>Contact Us - Farm Feast Farm House</title>
+      <title>Contact Us - {siteName}</title>
       <div className="min-h-screen">
         {/* Navigation */}
         <Navbar currentPage="contact" />
@@ -145,7 +175,7 @@ export default function ContactPage() {
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            placeholder="+91 99999 88888"
+                            placeholder={contactPhone}
                           />
                         </div>
                         <div className="space-y-2">
@@ -191,6 +221,33 @@ export default function ContactPage() {
                         Send Message
                       </Button>
                     </form>
+
+                    {/* Map Section */}
+                    <div className="mt-8 pt-8 border-t">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Find Us Here
+                      </h3>
+                      <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center relative overflow-hidden">
+                        <iframe
+                          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d243647.3160407725!2d78.24323!3d17.4123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99daeaebd2c7%3A0xae93b78392bafbc2!2sHyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1640000000000!5m2!1sen!2sin"
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          allowFullScreen
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          className="rounded-lg"
+                          title={`${siteName} Location`}
+                        />
+                        <div className="absolute inset-0 bg-gray-300 flex items-center justify-center rounded-lg">
+                          <div className="text-center text-gray-600">
+                            <MapPin className="w-12 h-12 mx-auto mb-2" />
+                            <p className="font-medium">Hyderabad, Telangana</p>
+                            <p className="text-sm">{siteName}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -213,14 +270,14 @@ export default function ContactPage() {
                     {
                       icon: Phone,
                       title: "Phone Support",
-                      content: "+91 99999 88888",
+                      content: contactPhone,
                       subtitle: "Available 24/7 for urgent inquiries",
                       color: "bg-green-100 text-green-600",
                     },
                     {
                       icon: Mail,
                       title: "Email Support",
-                      content: "info@farmstayoasis.com",
+                      content: contactEmail,
                       subtitle: "We'll respond within 24 hours",
                       color: "bg-blue-100 text-blue-600",
                     },
@@ -380,76 +437,7 @@ export default function ContactPage() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="bg-gray-900 text-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">FS</span>
-                  </div>
-                  <span className="text-xl font-bold">FarmStay Oasis</span>
-                </div>
-                <p className="text-gray-400">
-                  Connecting travelers with authentic farm experiences across
-                  India.
-                </p>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Quick Links</h3>
-                <div className="space-y-2">
-                  <Link
-                    href="/properties"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Browse Properties
-                  </Link>
-                  <Link
-                    href="/about"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    About Us
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Contact
-                  </Link>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">For Hosts</h3>
-                <div className="space-y-2">
-                  <Link
-                    href="/auth/sign-up?role=owner"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    List Your Property
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Owner Dashboard
-                  </Link>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Contact</h3>
-                <div className="space-y-2 text-gray-400">
-                  <p>info@farmstayoasis.com</p>
-                  <p>+91 99999 88888</p>
-                  <p>Hyderabad, Telangana</p>
-                </div>
-              </div>
-            </div>
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-              <p>&copy; 2024 FarmStay Oasis. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );

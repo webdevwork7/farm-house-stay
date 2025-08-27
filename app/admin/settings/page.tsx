@@ -24,6 +24,13 @@ export default function AdminSettingsPage() {
     contact_email: "",
     contact_phone: "",
     address: "",
+    about_title: "",
+    about_description: "",
+    hero_title: "",
+    hero_subtitle: "",
+    hero_description: "",
+    cta_title: "",
+    cta_description: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -79,6 +86,16 @@ export default function AdminSettingsPage() {
         contact_email: "info@farmstayoasis.com",
         contact_phone: "+91 99999 88888",
         address: "Hyderabad, Telangana, India",
+        about_title: "About FarmStay Oasis",
+        about_description:
+          "We are passionate about connecting people with nature through authentic farmstay experiences. Our carefully curated collection of premium farm houses offers the perfect escape from city life.",
+        hero_title: "Farm House for Rent in",
+        hero_subtitle: "Hyderabad & Nearby",
+        hero_description:
+          "Escape to luxury farm houses within 40 miles of Hyderabad. Perfect for family getaways, corporate retreats, and special celebrations.",
+        cta_title: "Ready for Your Farm Adventure?",
+        cta_description:
+          "Book your perfect farmstay today and create memories that will last a lifetime.",
       };
 
       settingsData?.forEach((setting) => {

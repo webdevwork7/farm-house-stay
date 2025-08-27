@@ -42,6 +42,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function LandingPPCPage() {
   const [formData, setFormData] = useState({
@@ -414,7 +415,7 @@ export default function LandingPPCPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                Why Choose Farm Feast Farm House?
+                Why Choose {siteName}?
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 Experience the perfect blend of luxury and nature with our
@@ -947,13 +948,13 @@ export default function LandingPPCPage() {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   className="rounded-lg"
-                  title="Farm Feast Farm House Location"
+                  title={`${siteName} Location`}
                 />
                 <div className="absolute inset-0 bg-gray-300 flex items-center justify-center rounded-lg">
                   <div className="text-center text-gray-600">
                     <MapPin className="w-12 h-12 mx-auto mb-2" />
                     <p className="font-medium">Hyderabad, Telangana</p>
-                    <p className="text-sm">Farm Feast Farm House</p>
+                    <p className="text-sm">{siteName}</p>
                   </div>
                 </div>
               </div>
@@ -993,96 +994,7 @@ export default function LandingPPCPage() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="bg-gray-900 text-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">FS</span>
-                  </div>
-                  <span className="text-xl font-bold">{siteName}</span>
-                </div>
-                <p className="text-gray-400">
-                  Connecting travelers with authentic farm experiences across
-                  India. Discover the beauty of rural life.
-                </p>
-                <div className="flex items-center space-x-2 text-gray-400">
-                  <Phone className="w-4 h-4" />
-                  <span>{contactPhone}</span>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Quick Links</h3>
-                <div className="space-y-2">
-                  <Link
-                    href="/properties"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Browse Properties
-                  </Link>
-                  <Link
-                    href="/about"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    About Us
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Contact
-                  </Link>
-                  <Link
-                    href="/auth/register"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">For Hosts</h3>
-                <div className="space-y-2">
-                  <Link
-                    href="/auth/register"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    List Your Property
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Owner Dashboard
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    Host Support
-                  </Link>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Contact Info</h3>
-                <div className="space-y-2 text-gray-400">
-                  <p>{contactEmail}</p>
-                  <p>{contactPhone}</p>
-                  <p>Hyderabad, Telangana</p>
-                  <p>Available 24/7</p>
-                </div>
-              </div>
-            </div>
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-              <p>
-                &copy; 2024 {siteName}. All rights reserved. | Bringing you
-                closer to nature, one farm at a time.
-              </p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );
