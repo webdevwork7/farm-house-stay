@@ -19,6 +19,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import FeaturedPropertyCard from "@/components/FeaturedPropertyCard";
 import Navbar from "@/components/Navbar";
+import { getRandomReviews } from "@/lib/data/reviews";
 
 async function getSiteSettings() {
   const cookieStore = await cookies();
@@ -57,7 +58,7 @@ async function getSiteSettings() {
       "Escape to luxury farm houses within 40 miles of Hyderabad. Perfect for family getaways, corporate retreats, and special celebrations.",
     about_title: "About FarmStay Oasis",
     about_description:
-      "We are passionate about connecting people with nature through authentic farmstay experiences. Our carefully curated collection of premium farm houses offers the perfect escape from city life.",
+      "We specialize in premium farm house rentals that offer the perfect blend of luxury and nature. Our carefully curated collection of modern farm houses provides the ideal escape for families, corporate groups, and special celebrations.",
     cta_title: "Ready for Your Farm Adventure?",
     cta_description:
       "Book your perfect farmstay today and create memories that will last a lifetime.",
@@ -107,6 +108,7 @@ async function getFeaturedFarmhouses() {
 export default async function HomePage() {
   const settings = await getSiteSettings();
   const featuredFarmhouses = await getFeaturedFarmhouses();
+  const randomReviews = getRandomReviews(3);
 
   return (
     <>
@@ -378,32 +380,7 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                {
-                  name: "Sarah Johnson",
-                  location: "Bangalore, Karnataka",
-                  rating: 5,
-                  text: "The most peaceful and rejuvenating vacation we've ever had. The farm activities were amazing and the hosts were incredibly welcoming.",
-                  avatar:
-                    "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
-                },
-                {
-                  name: "Rajesh Kumar",
-                  location: "Chennai, Tamil Nadu",
-                  rating: 5,
-                  text: "Perfect escape from city life. Our kids loved feeding the animals and we enjoyed the fresh farm-to-table meals every day.",
-                  avatar:
-                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
-                },
-                {
-                  name: "Priya Sharma",
-                  location: "Mumbai, Maharashtra",
-                  rating: 5,
-                  text: "Exceeded all expectations! The property was exactly as described and the booking process was seamless. Will definitely return.",
-                  avatar:
-                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
-                },
-              ].map((testimonial, index) => (
+              {randomReviews.map((testimonial, index) => (
                 <Card
                   key={index}
                   className="border-0 shadow-lg hover:shadow-xl transition-shadow"
@@ -456,10 +433,10 @@ export default async function HomePage() {
                     "We're passionate about connecting travelers with authentic farm experiences. Our platform brings together carefully vetted farm properties and adventure-seeking guests who want to escape the ordinary."}
                 </p>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  Founded by farmers and travel enthusiasts, we understand what
-                  makes a truly memorable farmstay experience. Every property on
-                  our platform is personally inspected to ensure it meets our
-                  high standards for comfort, authenticity, and hospitality.
+                  Each farm house in our portfolio features contemporary
+                  amenities, spacious accommodations, and beautiful outdoor
+                  spaces. We ensure every property meets our high standards for
+                  comfort, cleanliness, and exceptional guest experiences.
                 </p>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center">

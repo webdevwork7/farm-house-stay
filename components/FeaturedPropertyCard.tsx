@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Star, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getPropertySlug } from "@/lib/utils/slug";
 
 interface Property {
   id: string;
@@ -28,7 +29,7 @@ export default function FeaturedPropertyCard({
   property,
 }: FeaturedPropertyCardProps) {
   const handleCardClick = () => {
-    window.location.href = `/properties/${property.id}`;
+    window.location.href = `/properties/${getPropertySlug(property)}`;
   };
 
   return (
@@ -111,7 +112,7 @@ export default function FeaturedPropertyCard({
           )}
         </div>
         <Link
-          href={`/properties/${property.id}`}
+          href={`/properties/${getPropertySlug(property)}`}
           onClick={(e) => e.stopPropagation()}
         >
           <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3">

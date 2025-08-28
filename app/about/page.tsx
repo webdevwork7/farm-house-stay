@@ -51,9 +51,9 @@ export default function AboutPage() {
                 About <span className="text-green-600">{siteName}</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                Connecting travelers with authentic farm experiences across
-                India. We're passionate about preserving rural heritage while
-                creating unforgettable memories.
+                Providing premium farm house rentals across India. We're
+                passionate about offering luxury accommodations in natural
+                settings while creating unforgettable memories for our guests.
               </p>
             </div>
           </div>
@@ -68,23 +68,23 @@ export default function AboutPage() {
                   Our Story
                 </h2>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  Founded in 2020 by a group of farmers and travel enthusiasts,
+                  Founded in 2020 by hospitality and real estate professionals,
                   {siteName} was born from a simple belief: that the most
-                  meaningful travel experiences happen when we connect with
-                  local communities and embrace authentic ways of life.
+                  memorable getaways happen when luxury meets nature in perfect
+                  harmony.
                 </p>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  What started as a small network of family farms near Hyderabad
-                  has grown into India's premier farmstay booking platform,
-                  featuring over 500 carefully curated properties across the
-                  country. Each farmstay is personally inspected by our team to
-                  ensure it meets our high standards for comfort, authenticity,
-                  and hospitality.
+                  What started as a small collection of premium farm houses near
+                  Hyderabad has grown into India's premier farm house rental
+                  platform, featuring over 500 carefully curated properties
+                  across the country. Each farm house is personally inspected by
+                  our team to ensure it meets our high standards for luxury,
+                  comfort, and modern amenities.
                 </p>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   Today, we're proud to have facilitated over 50,000 bookings,
-                  helping travelers discover the beauty of rural India while
-                  supporting local farming communities.
+                  helping families, corporate groups, and celebration planners
+                  discover the perfect blend of luxury and nature.
                 </p>
               </div>
               <div className="relative">
@@ -113,11 +113,10 @@ export default function AboutPage() {
                     Our Mission
                   </h3>
                   <p className="text-gray-600 leading-relaxed">
-                    To bridge the gap between urban and rural India by creating
-                    meaningful connections through authentic farmstay
-                    experiences. We believe that travel should be
-                    transformative, sustainable, and beneficial to local
-                    communities.
+                    To provide exceptional farm house rental experiences that
+                    combine luxury accommodations with natural beauty. We
+                    believe that getaways should be transformative, comfortable,
+                    and create lasting memories for families and groups.
                   </p>
                 </CardContent>
               </Card>
@@ -130,10 +129,10 @@ export default function AboutPage() {
                     Our Vision
                   </h3>
                   <p className="text-gray-600 leading-relaxed">
-                    To become India's most trusted platform for rural tourism,
-                    preserving traditional farming practices while providing
-                    sustainable income opportunities for farming families across
-                    the country.
+                    To become India's most trusted platform for premium farm
+                    house rentals, setting new standards for luxury rural
+                    accommodations while providing exceptional experiences for
+                    our guests across the country.
                   </p>
                 </CardContent>
               </Card>
@@ -158,28 +157,28 @@ export default function AboutPage() {
                   icon: Shield,
                   title: "Authenticity",
                   description:
-                    "Every farmstay offers genuine rural experiences with real farming families.",
+                    "Every farm house offers genuine luxury experiences with authentic rural charm and modern amenities.",
                   color: "bg-green-100 text-green-600",
                 },
                 {
                   icon: Users,
                   title: "Community",
                   description:
-                    "Supporting local communities and preserving traditional ways of life.",
+                    "Building strong relationships with property owners and creating memorable experiences for our guests.",
                   color: "bg-blue-100 text-blue-600",
                 },
                 {
                   icon: Heart,
                   title: "Sustainability",
                   description:
-                    "Promoting eco-friendly practices and responsible tourism.",
+                    "Promoting eco-friendly practices and responsible luxury tourism in natural settings.",
                   color: "bg-red-100 text-red-600",
                 },
                 {
                   icon: Award,
                   title: "Quality",
                   description:
-                    "Maintaining the highest standards in accommodation and service.",
+                    "Maintaining the highest standards in luxury accommodation and premium service.",
                   color: "bg-amber-100 text-amber-600",
                 },
               ].map((value, index) => (
@@ -224,7 +223,7 @@ export default function AboutPage() {
                 {
                   name: "Rajesh Patel",
                   role: "Founder & CEO",
-                  bio: "Former software engineer turned farmer, passionate about sustainable agriculture and rural tourism.",
+                  bio: "Former hospitality executive with 20+ years experience, passionate about luxury accommodations and exceptional guest experiences.",
                   image:
                     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
                 },
@@ -238,7 +237,7 @@ export default function AboutPage() {
                 {
                   name: "Arjun Kumar",
                   role: "Technology Director",
-                  bio: "Tech enthusiast building innovative solutions to connect travelers with authentic experiences.",
+                  bio: "Tech enthusiast building innovative solutions to connect guests with premium farm house experiences.",
                   image:
                     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
                 },

@@ -31,6 +31,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { getPropertySlug } from "@/lib/utils/slug";
 
 interface Farmhouse {
   id: string;
@@ -317,7 +318,9 @@ export default function PropertiesPage() {
                     key={property.id}
                     className="border-0 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer"
                     onClick={() =>
-                      (window.location.href = `/properties/${property.id}`)
+                      (window.location.href = `/properties/${getPropertySlug(
+                        property
+                      )}`)
                     }
                   >
                     <div className="p-2">
@@ -422,7 +425,7 @@ export default function PropertiesPage() {
                         )}
                       </div>
 
-                      <Link href={`/properties/${property.id}`}>
+                      <Link href={`/properties/${getPropertySlug(property)}`}>
                         <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 transition-all duration-200 hover:shadow-lg">
                           View Details & Book
                         </Button>

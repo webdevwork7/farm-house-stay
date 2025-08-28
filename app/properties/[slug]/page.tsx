@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
+import { SimpleCalendar } from "@/components/ui/simple-calendar";
 import {
   Popover,
   PopoverContent,
@@ -31,19 +31,18 @@ import {
   Share,
   Shield,
   Award,
-  Phone,
   CheckCircle,
   Camera,
   Clock,
   TreePine,
-  Waves,
-  Mountain,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { getPropertyNameFromSlug } from "@/lib/utils/slug";
+import { getRandomReviews } from "@/lib/data/reviews";
 
 interface Farmhouse {
   id: string;
@@ -75,6 +74,7 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<Farmhouse | null>(null);
   const [loading, setLoading] = useState(true);
   const [siteName, setSiteName] = useState("Farm Feast Farm House");
+  const [reviews, setReviews] = useState(getRandomReviews(2));
   const [bookingForm, setBookingForm] = useState<BookingForm>({
     check_in_date: undefined,
     check_out_date: undefined,
@@ -86,11 +86,11 @@ export default function PropertyDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
-    if (params.id) {
-      fetchProperty(params.id as string);
+    if (params.slug) {
+      fetchPropertyBySlug(params.slug as string);
       fetchSiteSettings();
     }
-  }, [params.id]);
+  }, [params.slug]);
 
   const fetchSiteSettings = async () => {
     try {
@@ -109,36 +109,45 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const fetchProperty = async (id: string) => {
+  const fetchPropertyBySlug = async (slug: string) => {
     try {
       const supabase = createClient();
+
+      // Get all properties and find by exact slug match
       const { data, error } = await supabase
         .from("farmhouses")
         .select("*")
-        .eq("id", id)
-        .eq("is_active", true)
-        .single();
+        .eq("is_active", true);
 
-      if (error) {
-        if (error.code === "PGRST116") {
-          // No rows returned - property not found
-          setProperty(null);
-        } else {
-          throw error;
-        }
-        return;
+      if (error) throw error;
+
+      // Find property by exact slug match
+      const matchedProperty = data?.find((p) => {
+        // Create slug from property name
+        const propertySlug = p.name
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .trim()
+          .replace(/^-+|-+$/g, "");
+
+        // Exact match only
+        return propertySlug === slug;
+      });
+
+      if (matchedProperty) {
+        const propertyWithRating = {
+          ...matchedProperty,
+          average_rating: matchedProperty.rating || 0,
+          total_reviews: matchedProperty.total_reviews || 0,
+        };
+        setProperty(propertyWithRating);
+      } else {
+        setProperty(null);
       }
-
-      // STRICTLY USE DATABASE COLUMNS - rating and total_reviews
-      const propertyWithRating = {
-        ...data,
-        average_rating: data.rating || 0, // STRICTLY use database rating column
-        total_reviews: data.total_reviews || 0, // STRICTLY use database total_reviews column
-      };
-
-      setProperty(propertyWithRating);
     } catch (error) {
-      console.error("Error fetching property:", error);
+      console.error("Error fetching property by slug:", error);
       setProperty(null);
     } finally {
       setLoading(false);
@@ -162,6 +171,25 @@ export default function PropertyDetailPage() {
   };
 
   const handleBooking = async () => {
+    // Check if user is logged in first
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description:
+          "You need to login to book a farm house. Please sign in to continue.",
+        variant: "destructive",
+      });
+      // Redirect to login page
+      window.location.href = "/auth/login";
+      return;
+    }
+
+    // Validate form fields
     if (
       !property ||
       !bookingForm.check_in_date ||
@@ -176,23 +204,20 @@ export default function PropertyDetailPage() {
       return;
     }
 
+    // Guest count is already validated in the input field, no need to check here
+
+    // Validate dates
+    if (bookingForm.check_out_date <= bookingForm.check_in_date) {
+      toast({
+        title: "Invalid Dates",
+        description: "Check-out date must be after check-in date.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsBooking(true);
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        toast({
-          title: "Authentication Required",
-          description:
-            "Please sign in to make a booking. You'll be redirected to the login page.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       const totalAmount = calculateTotalPrice();
 
       const { error } = await supabase.from("bookings").insert({
@@ -202,24 +227,25 @@ export default function PropertyDetailPage() {
         check_out_date: format(bookingForm.check_out_date, "yyyy-MM-dd"),
         guests: bookingForm.guests,
         total_amount: totalAmount,
-        special_requests: bookingForm.special_requests,
+        special_requests: bookingForm.special_requests || null,
         status: "pending",
       });
 
       if (error) throw error;
 
-      toast({
-        title: "🎉 Booking Request Submitted!",
-        description: `Your booking for ${property.name} has been submitted successfully. You'll receive a confirmation email shortly.`,
-        duration: 5000,
-      });
-
-      // Reset form
+      // Clear form after successful booking
       setBookingForm({
         check_in_date: undefined,
         check_out_date: undefined,
         guests: 2,
         special_requests: "",
+      });
+
+      // Show success message
+      toast({
+        title: "🎉 Farm House Booked Successfully!",
+        description: `Your booking for ${property.name} has been confirmed. You'll receive a confirmation email shortly with all the details.`,
+        duration: 6000,
       });
     } catch (error) {
       console.error("Error creating booking:", error);
@@ -244,9 +270,8 @@ export default function PropertyDetailPage() {
       kitchen: Utensils,
       verified: Shield,
       award: Award,
-      pool: Waves,
+      pool: "🏊",
       garden: TreePine,
-      mountain: Mountain,
       fireplace: "🔥",
       bbq: "🍖",
     };
@@ -314,8 +339,8 @@ export default function PropertyDetailPage() {
                 Oops! Property Not Found
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                The property you're looking for doesn't exist or may have been
-                removed. Don't worry, we have many other amazing farmstays
+                The farm house you're looking for doesn't exist or may have been
+                removed. Don't worry, we have many other amazing farm houses
                 waiting for you!
               </p>
             </div>
@@ -346,7 +371,6 @@ export default function PropertyDetailPage() {
         <Navbar currentPage="properties" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Back Button */}
           <Link
             href="/properties"
             className="inline-flex items-center space-x-2 text-green-600 hover:text-green-700 mb-6 transition-colors"
@@ -355,7 +379,6 @@ export default function PropertyDetailPage() {
             <span>Back to Properties</span>
           </Link>
 
-          {/* Property Header */}
           <div className="mb-8">
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -401,7 +424,7 @@ export default function PropertyDetailPage() {
                     if (navigator.share) {
                       navigator.share({
                         title: property.name,
-                        text: `Check out this amazing farmstay: ${property.name}`,
+                        text: `Check out this amazing farm house: ${property.name}`,
                         url: window.location.href,
                       });
                     } else {
@@ -422,9 +445,7 @@ export default function PropertyDetailPage() {
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Enhanced Image Gallery */}
               <div className="space-y-4">
                 <div className="relative rounded-xl overflow-hidden">
                   <Image
@@ -472,18 +493,16 @@ export default function PropertyDetailPage() {
                 </div>
               </div>
 
-              {/* Property Details */}
               <div className="space-y-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    About this farmstay
+                    About this farm house
                   </h2>
                   <p className="text-gray-700 leading-relaxed text-lg">
                     {property.description}
                   </p>
                 </div>
 
-                {/* Enhanced Property Features */}
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     Property Features
@@ -528,7 +547,6 @@ export default function PropertyDetailPage() {
                   </div>
                 </div>
 
-                {/* Enhanced Amenities */}
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     What this place offers
@@ -550,7 +568,6 @@ export default function PropertyDetailPage() {
                   </div>
                 </div>
 
-                {/* Reviews Section */}
                 <div className="border-t pt-6">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-semibold text-gray-900">
@@ -564,26 +581,7 @@ export default function PropertyDetailPage() {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    {[
-                      {
-                        name: "Priya Sharma",
-                        date: "2 weeks ago",
-                        rating: 5,
-                        comment:
-                          "Absolutely wonderful experience! The farm is beautiful and the hosts are incredibly welcoming. Our kids loved feeding the animals and we enjoyed the fresh farm breakfast every morning.",
-                        avatar:
-                          "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
-                      },
-                      {
-                        name: "Amit Patel",
-                        date: "1 month ago",
-                        rating: 5,
-                        comment:
-                          "Perfect getaway from city life. The property is exactly as described and the location is peaceful. Highly recommend for families looking for an authentic farm experience.",
-                        avatar:
-                          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
-                      },
-                    ].map((review, index) => (
+                    {reviews.map((review, index) => (
                       <Card key={index} className="border-0 shadow-sm">
                         <CardContent className="p-4">
                           <div className="flex items-center space-x-3 mb-3">
@@ -614,7 +612,7 @@ export default function PropertyDetailPage() {
                             </div>
                           </div>
                           <p className="text-gray-700 text-sm leading-relaxed">
-                            {review.comment}
+                            {review.text}
                           </p>
                         </CardContent>
                       </Card>
@@ -622,7 +620,6 @@ export default function PropertyDetailPage() {
                   </div>
                 </div>
 
-                {/* Location */}
                 <div className="border-t pt-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     Where you'll be
@@ -647,36 +644,11 @@ export default function PropertyDetailPage() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Interactive Map */}
-                    <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center relative overflow-hidden">
-                      <iframe
-                        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dOWTgHz-y-2b8s&q=${encodeURIComponent(
-                          property.location + ", " + property.address
-                        )}`}
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0 }}
-                        allowFullScreen
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        className="rounded-lg"
-                        title={`Map showing location of ${property.name}`}
-                      />
-                      <div className="absolute inset-0 bg-gray-300 flex items-center justify-center rounded-lg">
-                        <div className="text-center text-gray-600">
-                          <MapPin className="w-12 h-12 mx-auto mb-2" />
-                          <p className="font-medium">{property.location}</p>
-                          <p className="text-sm">{property.address}</p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Enhanced Booking Card */}
             <div className="lg:col-span-1">
               <Card className="sticky top-24 shadow-xl border-0">
                 <CardHeader className="pb-4">
@@ -728,53 +700,20 @@ export default function PropertyDetailPage() {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent
-                          className="w-auto p-0 shadow-xl border-0"
+                          className="w-auto p-0 bg-white border shadow-lg z-[9999]"
                           align="start"
                           sideOffset={8}
                         >
-                          <div className="bg-white rounded-lg border shadow-lg">
-                            <Calendar
-                              mode="single"
-                              selected={bookingForm.check_in_date}
-                              onSelect={(date) =>
-                                setBookingForm((prev) => ({
-                                  ...prev,
-                                  check_in_date: date,
-                                }))
-                              }
-                              disabled={(date) => date < new Date()}
-                              initialFocus
-                              className="p-3"
-                              classNames={{
-                                months:
-                                  "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                                month: "space-y-4",
-                                caption:
-                                  "flex justify-center pt-1 relative items-center",
-                                caption_label: "text-sm font-medium",
-                                nav: "space-x-1 flex items-center",
-                                nav_button:
-                                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                                nav_button_previous: "absolute left-1",
-                                nav_button_next: "absolute right-1",
-                                table: "w-full border-collapse space-y-1",
-                                head_row: "flex",
-                                head_cell:
-                                  "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
-                                row: "flex w-full mt-2",
-                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-green-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-green-50 rounded-md transition-colors",
-                                day_selected:
-                                  "bg-green-600 text-white hover:bg-green-700 focus:bg-green-600 focus:text-white",
-                                day_today: "bg-gray-100 text-gray-900",
-                                day_outside: "text-gray-400 opacity-50",
-                                day_disabled: "text-gray-400 opacity-50",
-                                day_range_middle:
-                                  "aria-selected:bg-green-100 aria-selected:text-green-900",
-                                day_hidden: "invisible",
-                              }}
-                            />
-                          </div>
+                          <SimpleCalendar
+                            selected={bookingForm.check_in_date}
+                            onSelect={(date) => {
+                              setBookingForm((prev) => ({
+                                ...prev,
+                                check_in_date: date,
+                              }));
+                            }}
+                            disabled={(date) => date < new Date()}
+                          />
                         </PopoverContent>
                       </Popover>
                     </div>
@@ -805,192 +744,116 @@ export default function PropertyDetailPage() {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent
-                          className="w-auto p-0 shadow-xl border-0"
+                          className="w-auto p-0 bg-white border shadow-lg z-[9999]"
                           align="start"
                           sideOffset={8}
                         >
-                          <div className="bg-white rounded-lg border shadow-lg">
-                            <Calendar
-                              mode="single"
-                              selected={bookingForm.check_out_date}
-                              onSelect={(date) =>
-                                setBookingForm((prev) => ({
-                                  ...prev,
-                                  check_out_date: date,
-                                }))
-                              }
-                              disabled={(date) =>
-                                date <=
-                                (bookingForm.check_in_date || new Date())
-                              }
-                              initialFocus
-                              className="p-3"
-                              classNames={{
-                                months:
-                                  "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                                month: "space-y-4",
-                                caption:
-                                  "flex justify-center pt-1 relative items-center",
-                                caption_label: "text-sm font-medium",
-                                nav: "space-x-1 flex items-center",
-                                nav_button:
-                                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                                nav_button_previous: "absolute left-1",
-                                nav_button_next: "absolute right-1",
-                                table: "w-full border-collapse space-y-1",
-                                head_row: "flex",
-                                head_cell:
-                                  "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
-                                row: "flex w-full mt-2",
-                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-green-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-green-50 rounded-md transition-colors",
-                                day_selected:
-                                  "bg-green-600 text-white hover:bg-green-700 focus:bg-green-600 focus:text-white",
-                                day_today: "bg-gray-100 text-gray-900",
-                                day_outside: "text-gray-400 opacity-50",
-                                day_disabled: "text-gray-400 opacity-50",
-                                day_range_middle:
-                                  "aria-selected:bg-green-100 aria-selected:text-green-900",
-                                day_hidden: "invisible",
-                              }}
-                            />
-                          </div>
+                          <SimpleCalendar
+                            selected={bookingForm.check_out_date}
+                            onSelect={(date) => {
+                              setBookingForm((prev) => ({
+                                ...prev,
+                                check_out_date: date,
+                              }));
+                            }}
+                            disabled={(date) => {
+                              if (date < new Date()) return true;
+                              if (
+                                bookingForm.check_in_date &&
+                                date <= bookingForm.check_in_date
+                              )
+                                return true;
+                              return false;
+                            }}
+                          />
                         </PopoverContent>
                       </Popover>
                     </div>
-                  </div>
 
-                  <div>
-                    <Label
-                      htmlFor="guests"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Guests
-                    </Label>
-                    <Input
-                      id="guests"
-                      type="number"
-                      min="1"
-                      max={property.max_guests}
-                      value={bookingForm.guests.toString()}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value === "") {
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Number of Guests
+                      </Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max={property.max_guests}
+                        value={bookingForm.guests}
+                        onChange={(e) => {
+                          let value = parseInt(e.target.value) || 1;
+                          const maxGuests = property.max_guests;
+
+                          // Automatically cap the value to max guests
+                          if (value > maxGuests) {
+                            value = maxGuests;
+                          }
+                          if (value < 1) {
+                            value = 1;
+                          }
+
                           setBookingForm((prev) => ({
                             ...prev,
-                            guests: 1,
+                            guests: value,
                           }));
-                        } else {
-                          const numValue = parseInt(value);
-                          if (!isNaN(numValue) && numValue >= 1) {
-                            setBookingForm((prev) => ({
-                              ...prev,
-                              guests: Math.min(numValue, property.max_guests),
-                            }));
-                          }
-                        }
-                      }}
-                      className={`mt-1 ${
-                        bookingForm.guests > property.max_guests
-                          ? "border-red-500 focus:border-red-500"
-                          : ""
-                      }`}
-                    />
-                    {bookingForm.guests > property.max_guests ? (
-                      <p className="text-xs text-red-500 mt-1">
+                        }}
+                        className="h-12 border-2 hover:border-green-300 focus:border-green-500 transition-colors"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
                         Maximum {property.max_guests} guests allowed
                       </p>
-                    ) : (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Maximum {property.max_guests} guests
-                      </p>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Special Requests (Optional)
+                      </Label>
+                      <Textarea
+                        placeholder="Any special requirements or requests..."
+                        value={bookingForm.special_requests}
+                        onChange={(e) =>
+                          setBookingForm((prev) => ({
+                            ...prev,
+                            special_requests: e.target.value,
+                          }))
+                        }
+                        className="border-2 hover:border-green-300 focus:border-green-500 transition-colors"
+                        rows={3}
+                      />
+                    </div>
+
+                    {calculateTotalPrice() > 0 && (
+                      <div className="bg-green-50 p-4 rounded-lg space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>
+                            ₹{property.price_per_night.toLocaleString()} x{" "}
+                            {Math.ceil(
+                              (bookingForm.check_out_date!.getTime() -
+                                bookingForm.check_in_date!.getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            )}{" "}
+                            nights
+                          </span>
+                          <span>₹{calculateTotalPrice().toLocaleString()}</span>
+                        </div>
+                        <div className="border-t border-green-200 pt-2 flex justify-between font-semibold">
+                          <span>Total</span>
+                          <span>₹{calculateTotalPrice().toLocaleString()}</span>
+                        </div>
+                      </div>
                     )}
-                  </div>
 
-                  <div>
-                    <Label
-                      htmlFor="requests"
-                      className="text-sm font-medium text-gray-700"
+                    <Button
+                      onClick={handleBooking}
+                      disabled={isBooking}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg transition-all duration-200 hover:shadow-lg"
                     >
-                      Special Requests (Optional)
-                    </Label>
-                    <Textarea
-                      id="requests"
-                      placeholder="Any special requests or requirements..."
-                      value={bookingForm.special_requests}
-                      onChange={(e) =>
-                        setBookingForm((prev) => ({
-                          ...prev,
-                          special_requests: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                      rows={3}
-                    />
-                  </div>
+                      {isBooking ? "Processing..." : "Reserve Now"}
+                    </Button>
 
-                  {bookingForm.check_in_date && bookingForm.check_out_date && (
-                    <div className="border-t pt-4 space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span>
-                          ₹{property.price_per_night.toLocaleString()} ×{" "}
-                          {Math.ceil(
-                            (bookingForm.check_out_date.getTime() -
-                              bookingForm.check_in_date.getTime()) /
-                              (1000 * 60 * 60 * 24)
-                          )}{" "}
-                          nights
-                        </span>
-                        <span>₹{calculateTotalPrice().toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Service fee</span>
-                        <span>
-                          ₹
-                          {Math.round(
-                            calculateTotalPrice() * 0.1
-                          ).toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between font-semibold text-lg border-t pt-3">
-                        <span>Total</span>
-                        <span>
-                          ₹
-                          {(
-                            calculateTotalPrice() +
-                            Math.round(calculateTotalPrice() * 0.1)
-                          ).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  <Button
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 font-semibold"
-                    onClick={handleBooking}
-                    disabled={
-                      isBooking ||
-                      !bookingForm.check_in_date ||
-                      !bookingForm.check_out_date
-                    }
-                  >
-                    {isBooking ? "Processing..." : "Request to Book"}
-                  </Button>
-
-                  <p className="text-xs text-gray-500 text-center">
-                    You won't be charged yet. The host will review your request
-                    and respond within 24 hours.
-                  </p>
-
-                  <div className="flex items-center justify-center space-x-4 text-xs text-gray-500 pt-2">
-                    <div className="flex items-center space-x-1">
-                      <Shield className="w-3 h-3" />
-                      <span>Secure booking</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <CheckCircle className="w-3 h-3" />
-                      <span>Instant confirmation</span>
-                    </div>
+                    <p className="text-xs text-gray-500 text-center">
+                      You won't be charged yet. We'll confirm your booking
+                      first.
+                    </p>
                   </div>
                 </CardContent>
               </Card>

@@ -241,6 +241,71 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="about_title">About Section Title</Label>
+                <Input
+                  id="about_title"
+                  value={settings.about_title}
+                  onChange={(e) =>
+                    handleInputChange("about_title", e.target.value)
+                  }
+                  placeholder="About FarmStay Oasis"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="about_description">
+                  About Section Description
+                </Label>
+                <Textarea
+                  id="about_description"
+                  value={settings.about_description}
+                  onChange={(e) =>
+                    handleInputChange("about_description", e.target.value)
+                  }
+                  placeholder="We specialize in premium farm house rentals..."
+                  rows={4}
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="hero_title">Hero Title</Label>
+                  <Input
+                    id="hero_title"
+                    value={settings.hero_title}
+                    onChange={(e) =>
+                      handleInputChange("hero_title", e.target.value)
+                    }
+                    placeholder="Farm House for Rent in"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="hero_subtitle">Hero Subtitle</Label>
+                  <Input
+                    id="hero_subtitle"
+                    value={settings.hero_subtitle}
+                    onChange={(e) =>
+                      handleInputChange("hero_subtitle", e.target.value)
+                    }
+                    placeholder="Hyderabad & Nearby"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="hero_description">Hero Description</Label>
+                <Textarea
+                  id="hero_description"
+                  value={settings.hero_description}
+                  onChange={(e) =>
+                    handleInputChange("hero_description", e.target.value)
+                  }
+                  placeholder="Escape to luxury farm houses..."
+                  rows={3}
+                />
+              </div>
+
               <div className="flex justify-end">
                 <Button
                   onClick={handleSave}
