@@ -223,8 +223,8 @@ export default function PropertyDetailPage() {
       const { error } = await supabase.from("bookings").insert({
         user_id: user.id,
         farmhouse_id: property.id,
-        check_in_date: format(bookingForm.check_in_date, "yyyy-MM-dd"),
-        check_out_date: format(bookingForm.check_out_date, "yyyy-MM-dd"),
+        check_in: format(bookingForm.check_in_date, "yyyy-MM-dd"),
+        check_out: format(bookingForm.check_out_date, "yyyy-MM-dd"),
         guests: bookingForm.guests,
         total_amount: totalAmount,
         special_requests: bookingForm.special_requests || null,

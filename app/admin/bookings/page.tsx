@@ -30,8 +30,8 @@ import AdminNavbar from "@/components/AdminNavbar";
 
 interface Booking {
   id: string;
-  check_in_date: string;
-  check_out_date: string;
+  check_in: string;
+  check_out: string;
   guests: number;
   total_amount: number;
   status: string;
@@ -263,15 +263,12 @@ export default function AdminBookingsPage() {
                         <div className="flex items-center space-x-4">
                           <span>
                             Check-in:{" "}
-                            {format(
-                              new Date(booking.check_in_date),
-                              "MMM dd, yyyy"
-                            )}
+                            {format(new Date(booking.check_in), "MMM dd, yyyy")}
                           </span>
                           <span>
                             Check-out:{" "}
                             {format(
-                              new Date(booking.check_out_date),
+                              new Date(booking.check_out),
                               "MMM dd, yyyy"
                             )}
                           </span>
