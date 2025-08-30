@@ -269,6 +269,25 @@ export default function AdminDashboard() {
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
+                  <Calendar className="w-5 h-5 text-orange-600" />
+                  <span>Booking Requests</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Manage booking requests from landing page.
+                </p>
+                <Link href="/admin/booking-requests">
+                  <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white cursor-pointer">
+                    View Requests
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
                   <Settings className="w-5 h-5 text-gray-600" />
                   <span>Site Settings</span>
                 </CardTitle>

@@ -85,6 +85,16 @@ export default function AdminNavbar({ currentPage }: AdminNavbarProps) {
                 Bookings
               </Button>
             </Link>
+            <Link href="/admin/booking-requests">
+              <Button
+                variant={
+                  currentPage === "booking-requests" ? "default" : "ghost"
+                }
+                className="cursor-pointer"
+              >
+                Booking Requests
+              </Button>
+            </Link>
             <Link href="/admin/settings">
               <Button
                 variant={currentPage === "settings" ? "default" : "ghost"}
