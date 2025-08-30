@@ -6,7 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 import { createClient } from "@/lib/supabase/client";
+import { format } from "date-fns";
 import {
   Star,
   MapPin,
@@ -54,6 +56,8 @@ export default function LandingPPCPage() {
     guests: "2",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   const [siteName, setSiteName] = useState("Farm Feast Farm House");
   const [contactPhone, setContactPhone] = useState("+91 99999 88888");
   const [contactEmail, setContactEmail] = useState(
@@ -83,10 +87,108 @@ export default function LandingPPCPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
+
+    // Validate form fields
+    if (
+      !formData.name ||
+      !formData.phone ||
+      !formData.email ||
+      !formData.checkIn ||
+      !formData.checkOut
+    ) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate dates
+    const checkInDate = new Date(formData.checkIn);
+    const checkOutDate = new Date(formData.checkOut);
+
+    if (checkOutDate <= checkInDate) {
+      toast({
+        title: "Invalid Dates",
+        description: "Check-out date must be after check-in date.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (checkInDate < new Date()) {
+      toast({
+        title: "Invalid Date",
+        description: "Check-in date cannot be in the past.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const supabase = createClient();
+      const guests = parseInt(formData.guests) || 2;
+
+      // Create booking request
+      const { error } = await supabase.from("booking_requests").insert({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        check_in: format(checkInDate, "yyyy-MM-dd"),
+        check_out: format(checkOutDate, "yyyy-MM-dd"),
+        guests: guests,
+        special_requests: formData.message || null,
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      // Clear form after successful submission
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        checkIn: "",
+        checkOut: "",
+        guests: "2",
+        message: "",
+      });
+
+      // Show success message
+      toast({
+        title: "🎉 Booking Request Sent Successfully!",
+        description:
+          "Your request for farm house has been submitted successfully. We'll contact you within 2 hours to discuss your booking.",
+        duration: 6000,
+      });
+    } catch (error) {
+      console.error("Error creating booking request:", error);
+      toast({
+        title: "Request Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to submit booking request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (
@@ -282,7 +384,15 @@ export default function LandingPPCPage() {
                       min="1"
                       max="20"
                       value={formData.guests}
-                      onChange={handleInputChange}
+                      onChange={(e) => {
+                        let value = parseInt(e.target.value) || 1;
+                        if (value > 20) value = 20;
+                        if (value < 1) value = 1;
+                        setFormData((prev) => ({
+                          ...prev,
+                          guests: value.toString(),
+                        }));
+                      }}
                       className="mt-1"
                     />
                   </div>
@@ -304,10 +414,11 @@ export default function LandingPPCPage() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold"
+                    disabled={isSubmitting}
+                    className="w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold"
                   >
-                    Send Booking Request
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    {isSubmitting ? "Processing..." : "Send Booking Request"}
+                    {!isSubmitting && <ArrowRight className="w-5 h-5 ml-2" />}
                   </Button>
 
                   <p className="text-xs text-gray-500 text-center">
