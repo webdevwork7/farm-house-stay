@@ -370,22 +370,22 @@ export default function PropertyDetailPage() {
       <div className="min-h-screen bg-gray-50">
         <Navbar currentPage="properties" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
           <Link
             href="/properties"
-            className="inline-flex items-center space-x-2 text-green-600 hover:text-green-700 mb-6 transition-colors"
+            className="inline-flex items-center space-x-2 text-green-600 hover:text-green-700 mb-4 sm:mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Properties</span>
+            <span className="text-sm sm:text-base">Back to Properties</span>
           </Link>
 
-          <div className="mb-8">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 space-y-4 sm:space-y-0">
+              <div className="flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-2">
                   {property.name}
                 </h1>
-                <div className="flex items-center space-x-4 text-gray-600 mb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-gray-600">
                   <div className="flex items-center space-x-1">
                     <div className="flex items-center space-x-1">
                       {[...Array(5)].map((_, i) => (
@@ -399,27 +399,31 @@ export default function PropertyDetailPage() {
                         />
                       ))}
                     </div>
-                    <span className="font-medium">
+                    <span className="font-medium text-sm sm:text-base">
                       {property.average_rating
                         ? property.average_rating.toFixed(1)
                         : "0.0"}
                     </span>
-                    <span>({property.total_reviews || 0} reviews)</span>
+                    <span className="text-sm sm:text-base">
+                      ({property.total_reviews || 0} reviews)
+                    </span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <MapPin className="w-4 h-4 text-green-600" />
-                    <span>{property.location}</span>
+                    <span className="text-sm sm:text-base">
+                      {property.location}
+                    </span>
                   </div>
-                  <Badge className="bg-green-100 text-green-800">
+                  <Badge className="bg-green-100 text-green-800 w-fit">
                     Verified Property
                   </Badge>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 sm:mt-0">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="cursor-pointer"
+                  className="cursor-pointer text-xs sm:text-sm"
                   onClick={() => {
                     if (navigator.share) {
                       navigator.share({
@@ -437,17 +441,17 @@ export default function PropertyDetailPage() {
                     }
                   }}
                 >
-                  <Share className="w-4 h-4 mr-2" />
+                  <Share className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   Share
                 </Button>
               </div>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              <div className="space-y-4">
-                <div className="relative rounded-xl overflow-hidden">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="relative rounded-lg sm:rounded-xl overflow-hidden">
                   <Image
                     src={
                       propertyImages[selectedImageIndex] || "/placeholder.svg"
@@ -455,27 +459,28 @@ export default function PropertyDetailPage() {
                     alt={`${property.name} - Image ${selectedImageIndex + 1}`}
                     width={800}
                     height={500}
-                    className="w-full h-96 object-cover"
+                    className="w-full h-64 sm:h-80 lg:h-96 object-cover"
                   />
-                  <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                  <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-black/50 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
                     {selectedImageIndex + 1} / {propertyImages.length}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm"
+                    className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 bg-white/90 backdrop-blur-sm text-xs sm:text-sm"
                   >
-                    <Camera className="w-4 h-4 mr-2" />
-                    View All Photos
+                    <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">View All Photos</span>
+                    <span className="sm:hidden">Photos</span>
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-5 gap-1 sm:gap-2">
                   {propertyImages.slice(0, 5).map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImageIndex(index)}
-                      className={`relative rounded-lg overflow-hidden ${
+                      className={`relative rounded-md sm:rounded-lg overflow-hidden ${
                         selectedImageIndex === index
                           ? "ring-2 ring-green-500"
                           : ""
@@ -486,7 +491,7 @@ export default function PropertyDetailPage() {
                         alt={`${property.name} thumbnail ${index + 1}`}
                         width={150}
                         height={100}
-                        className="w-full h-20 object-cover hover:opacity-80 transition-opacity"
+                        className="w-full h-12 sm:h-16 lg:h-20 object-cover hover:opacity-80 transition-opacity"
                       />
                     </button>
                   ))}
@@ -504,44 +509,52 @@ export default function PropertyDetailPage() {
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
                     Property Features
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg">
-                      <Users className="w-6 h-6 text-green-600" />
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+                    <div className="flex items-center space-x-2 sm:space-x-3 p-3 sm:p-4 bg-green-50 rounded-lg">
+                      <Users className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 flex-shrink-0" />
                       <div>
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold text-gray-900 text-sm sm:text-base">
                           {property.max_guests}
                         </div>
-                        <div className="text-sm text-gray-600">Guests</div>
+                        <div className="text-xs sm:text-sm text-gray-600">
+                          Guests
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg">
-                      <Bed className="w-6 h-6 text-blue-600" />
+                    <div className="flex items-center space-x-2 sm:space-x-3 p-3 sm:p-4 bg-blue-50 rounded-lg">
+                      <Bed className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
                       <div>
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold text-gray-900 text-sm sm:text-base">
                           {property.bedrooms}
                         </div>
-                        <div className="text-sm text-gray-600">Bedrooms</div>
+                        <div className="text-xs sm:text-sm text-gray-600">
+                          Bedrooms
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg">
-                      <Bath className="w-6 h-6 text-purple-600" />
+                    <div className="flex items-center space-x-2 sm:space-x-3 p-3 sm:p-4 bg-purple-50 rounded-lg">
+                      <Bath className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0" />
                       <div>
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold text-gray-900 text-sm sm:text-base">
                           {property.bathrooms}
                         </div>
-                        <div className="text-sm text-gray-600">Bathrooms</div>
+                        <div className="text-xs sm:text-sm text-gray-600">
+                          Bathrooms
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 bg-amber-50 rounded-lg">
-                      <Shield className="w-6 h-6 text-amber-600" />
+                    <div className="flex items-center space-x-2 sm:space-x-3 p-3 sm:p-4 bg-amber-50 rounded-lg">
+                      <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0" />
                       <div>
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold text-gray-900 text-sm sm:text-base">
                           Verified
                         </div>
-                        <div className="text-sm text-gray-600">Property</div>
+                        <div className="text-xs sm:text-sm text-gray-600">
+                          Property
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -551,13 +564,13 @@ export default function PropertyDetailPage() {
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     What this place offers
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     {property.amenities.map((amenity, index) => (
                       <div
                         key={index}
-                        className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                       >
-                        <div className="text-green-600">
+                        <div className="text-green-600 flex-shrink-0">
                           {getAmenityIcon(amenity)}
                         </div>
                         <span className="text-gray-700 capitalize font-medium">
@@ -568,32 +581,36 @@ export default function PropertyDetailPage() {
                   </div>
                 </div>
 
-                <div className="border-t pt-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current inline mr-2" />
+                <div className="border-t pt-4 sm:pt-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                      <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current inline mr-2" />
                       {(property.average_rating || 0).toFixed(1)} ·{" "}
                       {property.total_reviews || 0} reviews
                     </h3>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-fit text-xs sm:text-sm"
+                    >
                       View All Reviews
                     </Button>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {reviews.map((review, index) => (
                       <Card key={index} className="border-0 shadow-sm">
-                        <CardContent className="p-4">
+                        <CardContent className="p-3 sm:p-4">
                           <div className="flex items-center space-x-3 mb-3">
                             <Image
                               src={review.avatar || "/placeholder.svg"}
                               alt={review.name}
                               width={40}
                               height={40}
-                              className="w-10 h-10 rounded-full object-cover"
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
                             />
-                            <div>
-                              <h5 className="font-medium text-gray-900">
+                            <div className="min-w-0 flex-1">
+                              <h5 className="font-medium text-gray-900 text-sm sm:text-base truncate">
                                 {review.name}
                               </h5>
                               <div className="flex items-center space-x-2">
@@ -611,7 +628,7 @@ export default function PropertyDetailPage() {
                               </div>
                             </div>
                           </div>
-                          <p className="text-gray-700 text-sm leading-relaxed">
+                          <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">
                             {review.text}
                           </p>
                         </CardContent>
@@ -650,46 +667,46 @@ export default function PropertyDetailPage() {
             </div>
 
             <div className="lg:col-span-1">
-              <Card className="sticky top-24 shadow-xl border-0">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center justify-between">
+              <Card className="lg:sticky lg:top-24 shadow-xl border-0">
+                <CardHeader className="pb-3 sm:pb-4">
+                  <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                     <div>
-                      <span className="text-3xl font-bold text-gray-900">
+                      <span className="text-2xl sm:text-3xl font-bold text-gray-900">
                         ₹{property.price_per_night.toLocaleString()}
                       </span>
-                      <span className="text-lg text-gray-600 ml-2">
+                      <span className="text-base sm:text-lg text-gray-600 ml-2">
                         per night
                       </span>
                     </div>
                   </CardTitle>
                   <div className="flex items-center space-x-2">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="font-medium">
+                    <span className="font-medium text-sm sm:text-base">
                       {(property.average_rating || 0).toFixed(1)}
                     </span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-xs sm:text-sm text-gray-600">
                       ({property.total_reviews || 0} reviews)
                     </span>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                      <Label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
                         Check-in Date
                       </Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className={`w-full justify-start text-left font-normal h-12 px-4 border-2 hover:border-green-300 focus:border-green-500 transition-colors ${
+                            className={`w-full justify-start text-left font-normal h-10 sm:h-12 px-3 sm:px-4 border-2 hover:border-green-300 focus:border-green-500 transition-colors ${
                               bookingForm.check_in_date
                                 ? "text-gray-900 border-green-200"
                                 : "text-gray-500 border-gray-200"
                             }`}
                           >
-                            <CalendarIcon className="mr-3 h-5 w-5 text-green-600" />
-                            <span className="text-base">
+                            <CalendarIcon className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                            <span className="text-sm sm:text-base">
                               {bookingForm.check_in_date
                                 ? format(
                                     bookingForm.check_in_date,
@@ -719,21 +736,21 @@ export default function PropertyDetailPage() {
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                      <Label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
                         Check-out Date
                       </Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className={`w-full justify-start text-left font-normal h-12 px-4 border-2 hover:border-green-300 focus:border-green-500 transition-colors ${
+                            className={`w-full justify-start text-left font-normal h-10 sm:h-12 px-3 sm:px-4 border-2 hover:border-green-300 focus:border-green-500 transition-colors ${
                               bookingForm.check_out_date
                                 ? "text-gray-900 border-green-200"
                                 : "text-gray-500 border-gray-200"
                             }`}
                           >
-                            <CalendarIcon className="mr-3 h-5 w-5 text-green-600" />
-                            <span className="text-base">
+                            <CalendarIcon className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                            <span className="text-sm sm:text-base">
                               {bookingForm.check_out_date
                                 ? format(
                                     bookingForm.check_out_date,
@@ -771,7 +788,7 @@ export default function PropertyDetailPage() {
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                      <Label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
                         Number of Guests
                       </Label>
                       <Input
@@ -796,7 +813,7 @@ export default function PropertyDetailPage() {
                             guests: value,
                           }));
                         }}
-                        className="h-12 border-2 hover:border-green-300 focus:border-green-500 transition-colors"
+                        className="h-10 sm:h-12 border-2 hover:border-green-300 focus:border-green-500 transition-colors text-sm sm:text-base"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Maximum {property.max_guests} guests allowed
@@ -804,7 +821,7 @@ export default function PropertyDetailPage() {
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                      <Label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
                         Special Requests (Optional)
                       </Label>
                       <Textarea
@@ -816,14 +833,14 @@ export default function PropertyDetailPage() {
                             special_requests: e.target.value,
                           }))
                         }
-                        className="border-2 hover:border-green-300 focus:border-green-500 transition-colors"
+                        className="border-2 hover:border-green-300 focus:border-green-500 transition-colors text-sm sm:text-base"
                         rows={3}
                       />
                     </div>
 
                     {calculateTotalPrice() > 0 && (
-                      <div className="bg-green-50 p-4 rounded-lg space-y-2">
-                        <div className="flex justify-between text-sm">
+                      <div className="bg-green-50 p-3 sm:p-4 rounded-lg space-y-2">
+                        <div className="flex justify-between text-xs sm:text-sm">
                           <span>
                             ₹{property.price_per_night.toLocaleString()} x{" "}
                             {Math.ceil(
@@ -835,7 +852,7 @@ export default function PropertyDetailPage() {
                           </span>
                           <span>₹{calculateTotalPrice().toLocaleString()}</span>
                         </div>
-                        <div className="border-t border-green-200 pt-2 flex justify-between font-semibold">
+                        <div className="border-t border-green-200 pt-2 flex justify-between font-semibold text-sm sm:text-base">
                           <span>Total</span>
                           <span>₹{calculateTotalPrice().toLocaleString()}</span>
                         </div>
@@ -845,7 +862,7 @@ export default function PropertyDetailPage() {
                     <Button
                       onClick={handleBooking}
                       disabled={isBooking}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg transition-all duration-200 hover:shadow-lg"
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg transition-all duration-200 hover:shadow-lg"
                     >
                       {isBooking ? "Processing..." : "Reserve Now"}
                     </Button>
