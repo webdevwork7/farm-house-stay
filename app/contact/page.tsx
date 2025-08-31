@@ -424,15 +424,15 @@ export default function ContactPage() {
                   Browse Properties
                 </Button>
               </Link>
-              <Link href="/auth/sign-up">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/10 px-8 py-3 bg-transparent"
-                >
-                  Sign Up Now
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => window.open(`tel:${contactPhone}`, "_self")}
+                className="border-white text-white hover:bg-white/10 px-8 py-3 bg-transparent cursor-pointer"
+              >
+                <Phone className="w-5 h-5 mr-2" />
+                Call Now {contactPhone}
+              </Button>
             </div>
           </div>
         </section>
