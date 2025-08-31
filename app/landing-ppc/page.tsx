@@ -278,7 +278,7 @@ export default function LandingPPCPage() {
                     className="border-green-600 text-green-600 hover:bg-green-50 px-8 py-4 text-lg cursor-pointer"
                   >
                     <Phone className="w-5 h-5 mr-2" />
-                    Call Now
+                    Call Now {contactPhone}
                   </Button>
                 </div>
               </div>
@@ -509,7 +509,7 @@ export default function LandingPPCPage() {
                   className="border-green-600 text-green-600 hover:bg-green-50 px-8 py-4 text-lg cursor-pointer"
                 >
                   <Phone className="w-5 h-5 mr-2" />
-                  Call to Book Now
+                  {contactPhone}
                 </Button>
               </div>
               <p className="text-sm text-gray-500 mt-4">
@@ -599,7 +599,7 @@ export default function LandingPPCPage() {
                   className="border-green-600 text-green-600 hover:bg-green-50 px-8 py-4 text-lg cursor-pointer"
                 >
                   <Phone className="w-5 h-5 mr-2" />
-                  Call Now
+                  {contactPhone}
                 </Button>
               </div>
             </div>
@@ -1097,7 +1097,7 @@ export default function LandingPPCPage() {
                 className="border-white text-black bg-white hover:bg-gray-100 px-8 py-4 text-lg font-semibold cursor-pointer"
               >
                 <Phone className="w-5 h-5 mr-2" />
-                Call Now: {contactPhone}
+                {contactPhone}
               </Button>
             </div>
           </div>

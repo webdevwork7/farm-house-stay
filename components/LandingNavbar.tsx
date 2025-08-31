@@ -48,7 +48,7 @@ export default function LandingNavbar() {
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 cursor-pointer"
           >
             <Phone className="w-4 h-4 mr-2" />
-            Call Now
+            Call Now {contactPhone}
           </Button>
         </div>
       </div>
