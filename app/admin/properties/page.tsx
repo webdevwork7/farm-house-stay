@@ -237,9 +237,13 @@ export default function AdminPropertiesPage() {
   };
 
   const deleteProperty = async (propertyId: string) => {
+    // Find the property name for the toast message
+    const property = properties.find((p) => p.id === propertyId);
+    const propertyName = property?.name || "Property";
+
     if (
       !confirm(
-        "Are you sure you want to deactivate this property? It will no longer be visible to users."
+        `Are you sure you want to permanently delete "${propertyName}"? This action cannot be undone and will remove all associated data.`
       )
     ) {
       return;
@@ -247,28 +251,44 @@ export default function AdminPropertiesPage() {
 
     try {
       const supabase = createClient();
+
+      // First, delete any related bookings (if needed)
+      const { error: bookingsError } = await supabase
+        .from("bookings")
+        .delete()
+        .eq("farmhouse_id", propertyId);
+
+      if (bookingsError) {
+        console.warn("Error deleting related bookings:", bookingsError);
+        // Continue with property deletion even if bookings deletion fails
+      }
+
+      // Delete the property
       const { error } = await supabase
         .from("farmhouses")
-        .update({ is_active: false })
+        .delete()
         .eq("id", propertyId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase delete error:", error);
+        throw error;
+      }
 
-      // Update local state
-      setProperties((prev) =>
-        prev.map((p) => (p.id === propertyId ? { ...p, is_active: false } : p))
-      );
+      // Remove from local state
+      setProperties((prev) => prev.filter((p) => p.id !== propertyId));
 
       toast({
-        title: "Property Deactivated",
-        description: "Property has been deactivated successfully.",
+        title: "🗑️ Property Deleted Successfully!",
+        description: `"${propertyName}" has been permanently removed from the system.`,
+        duration: 5000,
       });
     } catch (error) {
-      console.error("Error deactivating property:", error);
+      console.error("Error deleting property:", error);
       toast({
-        title: "Deactivation Failed",
-        description: "Failed to deactivate property. Please try again.",
+        title: "❌ Deletion Failed",
+        description: `Failed to delete "${propertyName}". Please try again or contact support if the issue persists.`,
         variant: "destructive",
+        duration: 6000,
       });
     }
   };
@@ -1132,33 +1152,50 @@ export default function AdminPropertiesPage() {
                               </form>
                             </CustomDialogContent>
                           </Dialog>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              updatePropertyStatus(
-                                property.id,
-                                !property.is_active
-                              )
-                            }
-                            className={
-                              property.is_active
-                                ? "text-red-600 hover:text-red-700 cursor-pointer"
-                                : "text-green-600 hover:text-green-700 cursor-pointer"
-                            }
-                          >
-                            {property.is_active ? (
-                              <>
-                                <X className="w-4 h-4 mr-1" />
-                                Deactivate
-                              </>
-                            ) : (
-                              <>
+                          {property.is_active ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                updatePropertyStatus(property.id, false)
+                              }
+                              className="text-red-600 hover:text-red-700 cursor-pointer"
+                            >
+                              <X className="w-4 h-4 mr-1" />
+                              Deactivate
+                            </Button>
+                          ) : (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  updatePropertyStatus(property.id, true)
+                                }
+                                className="text-green-600 hover:text-green-700 cursor-pointer"
+                              >
                                 <Check className="w-4 h-4 mr-1" />
                                 Activate
-                              </>
-                            )}
-                          </Button>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log(
+                                    "Delete button clicked for property:",
+                                    property.id
+                                  );
+                                  deleteProperty(property.id);
+                                }}
+                                className="text-red-600 hover:text-red-700 cursor-pointer"
+                              >
+                                <X className="w-4 h-4 mr-1" />
+                                Delete
+                              </Button>
+                            </>
+                          )}
                           <Link
                             href={`/properties/${getPropertySlug(property)}`}
                           >
@@ -1171,14 +1208,6 @@ export default function AdminPropertiesPage() {
                               View
                             </Button>
                           </Link>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => deleteProperty(property.id)}
-                            className="text-red-600 hover:text-red-700 cursor-pointer"
-                          >
-                            Deactivate
-                          </Button>
                         </div>
                       </div>
                     </div>
