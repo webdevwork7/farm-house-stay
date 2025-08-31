@@ -79,18 +79,46 @@ export default function RegisterPage() {
       if (error) throw error;
 
       if (data.user) {
-        const { error: insertError } = await supabase.from("users").insert({
+        console.log("🔥 INSERTING USER DATA:", {
           id: data.user.id,
           email: formData.email,
           full_name: formData.fullName,
           phone: formData.phone,
           role: formData.role,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         });
 
+        const { data: insertData, error: insertError } = await supabase
+          .from("users")
+          .insert({
+            id: data.user.id,
+            email: formData.email,
+            full_name: formData.fullName,
+            phone: formData.phone,
+            role: formData.role,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+
+        console.log("🔥 INSERT RESULT:", { insertData, insertError });
+
         if (insertError) {
-          console.error("Error inserting user data:", insertError);
+          console.error("❌ DATABASE ERROR DETAILS:", {
+            message: insertError.message,
+            details: insertError.details,
+            hint: insertError.hint,
+            code: insertError.code,
+          });
+
+          // Show user-friendly error
+          toast({
+            title: "⚠️ Profile Creation Issue",
+            description:
+              "Account created but profile setup incomplete. You can still login.",
+            variant: "destructive",
+          });
+        } else {
+          console.log("✅ USER INSERTED SUCCESSFULLY INTO DATABASE!");
         }
       }
 

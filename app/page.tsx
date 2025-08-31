@@ -19,6 +19,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import FeaturedPropertyCard from "@/components/FeaturedPropertyCard";
 import Navbar from "@/components/Navbar";
+import OwnerRedirect from "@/components/OwnerRedirect";
 import { getRandomReviews } from "@/lib/data/reviews";
 
 async function getSiteSettings() {
@@ -115,6 +116,7 @@ export default async function HomePage() {
       <title>
         {settings.site_name || "Farm Feast Farm House"} - Premium Farm Stays
       </title>
+      <OwnerRedirect />
       <div className="min-h-screen">
         <Navbar currentPage="home" />
 
@@ -485,19 +487,25 @@ export default async function HomePage() {
                 "Join thousands of travelers who have discovered the magic of authentic farmstay experiences. Book your perfect getaway today and create memories that will last a lifetime."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/auth/sign-up">
+              <a
+                href={`tel:${
+                  settings.contact_phone?.replace(/\s/g, "") || "+919999988888"
+                }`}
+                className="cursor-pointer"
+              >
                 <Button
                   size="lg"
-                  className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
+                  className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold flex items-center space-x-2 cursor-pointer"
                 >
-                  Start Exploring Now
+                  <Phone className="w-5 h-5" />
+                  <span>Call Now</span>
                 </Button>
-              </Link>
-              <Link href="/auth/sign-up?role=owner">
+              </a>
+              <Link href="/auth/register" className="cursor-pointer">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold bg-transparent backdrop-blur-sm"
+                  className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold bg-transparent backdrop-blur-sm cursor-pointer"
                 >
                   List Your Property
                 </Button>
@@ -574,7 +582,7 @@ export default async function HomePage() {
                 <h3 className="text-lg font-semibold">For Hosts</h3>
                 <div className="space-y-2">
                   <Link
-                    href="/auth/sign-up?role=owner"
+                    href="/auth/register"
                     className="block text-gray-400 hover:text-white transition-colors"
                   >
                     List Your Property
@@ -605,7 +613,7 @@ export default async function HomePage() {
             </div>
             <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
               <p>
-                &copy; 2024 {settings.site_name || "FarmStay Oasis"}. All rights
+                &copy; 2025 {settings.site_name || "FarmStay Oasis"}. All rights
                 reserved. | Bringing you closer to nature, one farm at a time.
               </p>
             </div>

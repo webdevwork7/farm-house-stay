@@ -15,6 +15,7 @@ interface NavbarProps {
 
 export default function Navbar({ currentPage = "home" }: NavbarProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [siteName, setSiteName] = useState("Farm Feast Farm House");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
@@ -22,12 +23,25 @@ export default function Navbar({ currentPage = "home" }: NavbarProps) {
   useEffect(() => {
     const supabase = createClient();
 
-    // Get current user
-    const getUser = async () => {
+    // Get current user and their role
+    const getUserAndRole = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
+
+      if (user) {
+        // Get user role from database
+        const { data: profile } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        setUserRole(profile?.role || null);
+      } else {
+        setUserRole(null);
+      }
     };
 
     // Get site settings
@@ -43,24 +57,54 @@ export default function Navbar({ currentPage = "home" }: NavbarProps) {
       }
     };
 
-    getUser();
+    getUserAndRole();
     getSiteSettings();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null);
+
+      if (session?.user) {
+        // Get user role when auth state changes
+        const { data: profile } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+
+        setUserRole(profile?.role || null);
+      } else {
+        setUserRole(null);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const handleSignOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    try {
+      const supabase = createClient();
+
+      // Clear local state immediately
+      setUser(null);
+      setUserRole(null);
+
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Sign out error:", error);
+      }
+
+      // Force redirect to home page
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Sign out error:", error);
+      // Force redirect even if there's an error
+      window.location.href = "/";
+    }
   };
 
   return (
@@ -117,14 +161,17 @@ export default function Navbar({ currentPage = "home" }: NavbarProps) {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <Link href="/dashboard">
-                  <Button
-                    variant="ghost"
-                    className="text-green-700 hover:text-green-800 cursor-pointer"
-                  >
-                    Dashboard
-                  </Button>
-                </Link>
+                {/* Only show Dashboard link for owners */}
+                {userRole === "owner" && (
+                  <Link href="/dashboard">
+                    <Button
+                      variant="ghost"
+                      className="text-green-700 hover:text-green-800 cursor-pointer"
+                    >
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
                 <Button
                   variant="ghost"
                   onClick={handleSignOut}
@@ -222,15 +269,18 @@ export default function Navbar({ currentPage = "home" }: NavbarProps) {
               <div className="pt-4 border-t border-green-100 space-y-2">
                 {user ? (
                   <>
-                    <Link href="/dashboard">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-green-700 hover:text-green-800"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Dashboard
-                      </Button>
-                    </Link>
+                    {/* Only show Dashboard link for owners */}
+                    {userRole === "owner" && (
+                      <Link href="/dashboard">
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start text-green-700 hover:text-green-800"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Dashboard
+                        </Button>
+                      </Link>
+                    )}
                     <Button
                       variant="ghost"
                       onClick={() => {

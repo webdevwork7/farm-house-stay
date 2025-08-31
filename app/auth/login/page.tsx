@@ -39,19 +39,63 @@ export default function LoginPage() {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific Supabase login errors with beautiful toasts
+        if (error.message.includes("Invalid login credentials")) {
+          toast({
+            title: "🔐 Invalid Credentials",
+            description:
+              "The email or password you entered is incorrect. Please try again.",
+            variant: "destructive",
+          });
+          setError("Invalid email or password. Please check your credentials.");
+          return;
+        } else if (error.message.includes("Email not confirmed")) {
+          toast({
+            title: "📧 Email Not Verified",
+            description:
+              "Please check your email and click the verification link before signing in.",
+            variant: "destructive",
+          });
+          setError("Please verify your email address before signing in.");
+          return;
+        } else if (error.message.includes("Too many requests")) {
+          toast({
+            title: "⏰ Too Many Attempts",
+            description:
+              "Too many login attempts. Please wait a moment and try again.",
+            variant: "destructive",
+          });
+          setError("Too many login attempts. Please wait and try again.");
+          return;
+        } else if (error.message.includes("Invalid email")) {
+          toast({
+            title: "📧 Invalid Email",
+            description: "Please enter a valid email address.",
+            variant: "destructive",
+          });
+          setError("Please enter a valid email address.");
+          return;
+        }
+        throw error;
+      }
 
       if (data.user) {
         // Get user profile to check role
         const { data: profile, error: profileError } = await supabase
           .from("users")
-          .select("role")
+          .select("role, full_name")
           .eq("id", data.user.id)
           .single();
 
+        // Success toast with user's name
+        const userName =
+          profile?.full_name || data.user.email?.split("@")[0] || "User";
         toast({
-          title: "Login Successful",
-          description: "Welcome back! Redirecting you now...",
+          title: `🎉 Welcome back, ${userName}!`,
+          description:
+            "You've been successfully signed in. Redirecting you now...",
+          duration: 3000,
         });
 
         // If profile exists, redirect based on role
@@ -93,11 +137,12 @@ export default function LoginPage() {
         }
       }
     } catch (error: unknown) {
+      console.error("Login error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "An error occurred";
+        error instanceof Error ? error.message : "An unexpected error occurred";
       setError(errorMessage);
       toast({
-        title: "Login Failed",
+        title: "❌ Login Failed",
         description: errorMessage,
         variant: "destructive",
       });
