@@ -19,7 +19,7 @@ export default function LandingNavbar() {
           .select("key, value");
 
         if (settings) {
-          settings.forEach((setting) => {
+          settings.forEach((setting: { key: string; value: string }) => {
             if (setting.key === "site_name") setSiteName(setting.value);
             if (setting.key === "contact_phone") setContactPhone(setting.value);
           });

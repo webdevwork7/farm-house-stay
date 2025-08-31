@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import DashboardNavbar from "@/components/DashboardNavbar";
 
 interface Booking {
   id: string;
@@ -113,19 +114,32 @@ export default function BookingsManagement() {
       if (error) throw error;
 
       const formattedBookings =
-        data?.map((booking: any) => ({
-          id: booking.id,
-          farmhouse_name: booking.farmhouses.name,
-          guest_name: booking.users.full_name || "Guest",
-          guest_email: booking.users.email,
-          check_in_date: booking.check_in_date,
-          check_out_date: booking.check_out_date,
-          guests: booking.guests,
-          total_amount: booking.total_amount,
-          status: booking.status,
-          special_requests: booking.special_requests,
-          created_at: booking.created_at,
-        })) || [];
+        data?.map(
+          (booking: {
+            id: string;
+            check_in_date: string;
+            check_out_date: string;
+            guests: number;
+            total_amount: number;
+            status: string;
+            special_requests: string;
+            created_at: string;
+            farmhouses: { name: string };
+            users: { full_name: string | null; email: string };
+          }) => ({
+            id: booking.id,
+            farmhouse_name: booking.farmhouses.name,
+            guest_name: booking.users.full_name || "Guest",
+            guest_email: booking.users.email,
+            check_in_date: booking.check_in_date,
+            check_out_date: booking.check_out_date,
+            guests: booking.guests,
+            total_amount: booking.total_amount,
+            status: booking.status,
+            special_requests: booking.special_requests,
+            created_at: booking.created_at,
+          })
+        ) || [];
 
       setBookings(formattedBookings);
     } catch (error) {
@@ -256,32 +270,7 @@ export default function BookingsManagement() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FS</span>
-              </div>
-              <span className="text-xl font-bold text-green-800">
-                FarmStay Oasis
-              </span>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
-              <Link href="/dashboard/properties">
-                <Button variant="ghost">Properties</Button>
-              </Link>
-              <Link href="/dashboard/profile">
-                <Button variant="ghost">Profile</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <DashboardNavbar currentPage="bookings" siteName="FarmStay Oasis" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

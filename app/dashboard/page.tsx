@@ -19,7 +19,6 @@ import {
   Clock,
   Star,
   MessageSquare,
-  Bell,
   MapPin,
 } from "lucide-react";
 import Link from "next/link";
@@ -57,7 +56,7 @@ interface MonthlyData {
 }
 
 export default function OwnerDashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const [stats, setStats] = useState<DashboardStats>({
     totalProperties: 0,
     activeProperties: 0,
@@ -73,7 +72,16 @@ export default function OwnerDashboard() {
   });
   const [recentBookings, setRecentBookings] = useState<RecentBooking[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
-  const [topProperties, setTopProperties] = useState<any[]>([]);
+  const [topProperties, setTopProperties] = useState<
+    {
+      id: string;
+      name: string;
+      location: string;
+      totalRevenue: number;
+      totalBookings: number;
+      averageBookingValue: number;
+    }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [siteSettings, setSiteSettings] = useState<Record<string, string>>({});
   const router = useRouter();
@@ -278,15 +286,25 @@ export default function OwnerDashboard() {
         .limit(5);
 
       const formattedBookings =
-        recentBookingsData?.map((booking: any) => ({
-          id: booking.id,
-          farmhouse_name: booking.farmhouses.name,
-          guest_name: booking.users.full_name || "Guest",
-          check_in_date: booking.check_in_date,
-          check_out_date: booking.check_out_date,
-          total_amount: booking.total_amount,
-          status: booking.status,
-        })) || [];
+        recentBookingsData?.map(
+          (booking: {
+            id: string;
+            check_in_date: string;
+            check_out_date: string;
+            total_amount: number;
+            status: string;
+            farmhouses: { name: string };
+            users: { full_name: string | null };
+          }) => ({
+            id: booking.id,
+            farmhouse_name: booking.farmhouses.name,
+            guest_name: booking.users.full_name || "Guest",
+            check_in_date: booking.check_in_date,
+            check_out_date: booking.check_out_date,
+            total_amount: booking.total_amount,
+            status: booking.status,
+          })
+        ) || [];
 
       setRecentBookings(formattedBookings);
 
@@ -310,24 +328,33 @@ export default function OwnerDashboard() {
 
       // Calculate top properties based on total revenue
       const propertiesWithStats =
-        topPropertiesData?.map((property: any) => {
-          const confirmedBookings =
-            property.bookings?.filter((b: any) => b.status === "confirmed") ||
-            [];
-          const totalRevenue = confirmedBookings.reduce(
-            (sum: number, b: any) => sum + (b.total_amount || 0),
-            0
-          );
-          const totalBookings = confirmedBookings.length;
+        topPropertiesData?.map(
+          (property: {
+            id: string;
+            name: string;
+            location: string;
+            price_per_night: number;
+            images: string[];
+            is_active: boolean;
+            bookings: { total_amount: number; status: string }[];
+          }) => {
+            const confirmedBookings =
+              property.bookings?.filter((b) => b.status === "confirmed") || [];
+            const totalRevenue = confirmedBookings.reduce(
+              (sum: number, b) => sum + (b.total_amount || 0),
+              0
+            );
+            const totalBookings = confirmedBookings.length;
 
-          return {
-            ...property,
-            totalRevenue,
-            totalBookings,
-            averageBookingValue:
-              totalBookings > 0 ? totalRevenue / totalBookings : 0,
-          };
-        }) || [];
+            return {
+              ...property,
+              totalRevenue,
+              totalBookings,
+              averageBookingValue:
+                totalBookings > 0 ? totalRevenue / totalBookings : 0,
+            };
+          }
+        ) || [];
 
       // Sort by total revenue and take top 3
       const sortedProperties = propertiesWithStats
@@ -384,67 +411,6 @@ export default function OwnerDashboard() {
         currentPage="dashboard"
         siteName={siteSettings.site_name}
       />
-
-      {/* Navigation Actions */}
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-end items-center h-12 space-x-4">
-            <Link href="/dashboard/analytics">
-              <Button variant="ghost" className="cursor-pointer">
-                Analytics
-              </Button>
-            </Link>
-            <Link href="/dashboard/properties">
-              <Button variant="ghost" className="cursor-pointer">
-                Properties
-              </Button>
-            </Link>
-            <Link href="/dashboard/bookings">
-              <Button variant="ghost" className="cursor-pointer">
-                Bookings
-              </Button>
-            </Link>
-            <Link href="/dashboard/profile">
-              <Button variant="ghost" className="cursor-pointer">
-                Profile
-              </Button>
-            </Link>
-            <Button
-              variant="outline"
-              className="relative bg-transparent cursor-pointer"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {stats.pendingBookings}
-              </span>
-            </Button>
-            <Button
-              variant="outline"
-              className="cursor-pointer"
-              onClick={async () => {
-                try {
-                  const supabase = createClient();
-                  await supabase.auth.signOut();
-                  toast({
-                    title: "Signed Out Successfully",
-                    description: "You have been logged out. See you soon!",
-                  });
-                  router.push("/");
-                } catch (error) {
-                  toast({
-                    title: "Sign Out Failed",
-                    description:
-                      "There was an error signing you out. Please try again.",
-                    variant: "destructive",
-                  });
-                }
-              }}
-            >
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

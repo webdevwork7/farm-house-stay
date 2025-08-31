@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DashboardNavbarProps {
   currentPage?: string;
@@ -13,6 +15,40 @@ export default function DashboardNavbar({
   currentPage,
   siteName = "FarmStay Oasis",
 }: DashboardNavbarProps) {
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      const supabase = createClient();
+
+      // Clear all auth-related localStorage
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("supabase.auth.token");
+        localStorage.removeItem("sb-urhxgnzljgnvzmirpquz-auth-token");
+        sessionStorage.clear();
+      }
+
+      await supabase.auth.signOut({ scope: "global" });
+
+      toast({
+        title: "Signed Out Successfully",
+        description: "You have been logged out successfully.",
+      });
+
+      // Force page reload to clear all state
+      window.location.replace("/");
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast({
+        title: "Sign Out Failed",
+        description: "There was an error signing you out. Please try again.",
+        variant: "destructive",
+      });
+      // Force redirect even if there's an error
+      window.location.replace("/");
+    }
+  };
+
   return (
     <nav className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,6 +91,29 @@ export default function DashboardNavbar({
                 Analytics
               </Button>
             </Link>
+            <Link href="/dashboard/bookings">
+              <Button
+                variant={currentPage === "bookings" ? "default" : "ghost"}
+                className="cursor-pointer"
+              >
+                Bookings
+              </Button>
+            </Link>
+            <Link href="/dashboard/profile">
+              <Button
+                variant={currentPage === "profile" ? "default" : "ghost"}
+                className="cursor-pointer"
+              >
+                Profile
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              onClick={handleSignOut}
+              className="cursor-pointer text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
       </div>

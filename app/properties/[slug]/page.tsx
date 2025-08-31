@@ -91,19 +91,16 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     if (params.slug) {
-      console.log("useEffect triggered with slug:", params.slug);
       fetchPropertyBySlug(params.slug as string);
       fetchSiteSettings();
 
       // Add timeout to prevent infinite loading
       const timeout = setTimeout(() => {
-        console.log("Timeout reached, stopping loading");
         setLoading(false);
       }, 10000); // 10 seconds timeout
 
       return () => clearTimeout(timeout);
     } else {
-      console.log("No slug found in params");
       setLoading(false);
     }
   }, [params.slug]);

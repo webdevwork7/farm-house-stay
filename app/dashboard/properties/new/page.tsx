@@ -12,6 +12,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Save, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import DashboardNavbar from "@/components/DashboardNavbar";
+import DashboardNavbar from "@/components/DashboardNavbar";
 
 const AMENITIES_OPTIONS = [
   "WiFi",
@@ -169,29 +171,7 @@ export default function NewPropertyPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FS</span>
-              </div>
-              <span className="text-xl font-bold text-green-800">
-                FarmStay Oasis
-              </span>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
-              <Link href="/dashboard/properties">
-                <Button variant="ghost">Properties</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <DashboardNavbar currentPage="properties" siteName="FarmStay Oasis" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

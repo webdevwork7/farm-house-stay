@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
+
 import { Menu, X } from "lucide-react";
 import Logo from "@/components/Logo";
 
@@ -18,7 +18,6 @@ export default function Navbar({ currentPage = "home" }: NavbarProps) {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [siteName, setSiteName] = useState("Farm Feast Farm House");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
@@ -63,20 +62,33 @@ export default function Navbar({ currentPage = "home" }: NavbarProps) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
+      console.log("Auth state changed:", event, session?.user?.id);
 
-      if (session?.user) {
-        // Get user role when auth state changes
-        const { data: profile } = await supabase
-          .from("users")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-
-        setUserRole(profile?.role || null);
-      } else {
+      if (event === "SIGNED_OUT" || !session) {
+        setUser(null);
         setUserRole(null);
+        // Clear any cached data
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("supabase.auth.token");
+          localStorage.removeItem("sb-urhxgnzljgnvzmirpquz-auth-token");
+        }
+      } else if (session?.user) {
+        setUser(session.user);
+
+        // Get user role when auth state changes
+        try {
+          const { data: profile } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", session.user.id)
+            .single();
+
+          setUserRole(profile?.role || null);
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+          setUserRole(null);
+        }
       }
     });
 
@@ -91,19 +103,22 @@ export default function Navbar({ currentPage = "home" }: NavbarProps) {
       setUser(null);
       setUserRole(null);
 
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-
-      if (error) {
-        console.error("Sign out error:", error);
+      // Clear all auth-related localStorage
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("supabase.auth.token");
+        localStorage.removeItem("sb-urhxgnzljgnvzmirpquz-auth-token");
+        sessionStorage.clear();
       }
 
-      // Force redirect to home page
-      window.location.href = "/";
+      // Sign out from Supabase
+      await supabase.auth.signOut({ scope: "global" });
+
+      // Force page reload to clear all state
+      window.location.replace("/");
     } catch (error) {
       console.error("Sign out error:", error);
       // Force redirect even if there's an error
-      window.location.href = "/";
+      window.location.replace("/");
     }
   };
 

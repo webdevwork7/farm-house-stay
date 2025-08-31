@@ -3,8 +3,10 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import AuthRecovery from "@/components/AuthRecovery";
 
 async function getSiteSettings() {
   const cookieStore = await cookies();
@@ -128,8 +130,10 @@ html {
         `}</style>
       </head>
       <body>
-        {children}
-        <Toaster />
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

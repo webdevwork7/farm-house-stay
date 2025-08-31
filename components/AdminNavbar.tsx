@@ -1,11 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Shield } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
 interface AdminNavbarProps {
@@ -13,25 +11,37 @@ interface AdminNavbarProps {
 }
 
 export default function AdminNavbar({ currentPage }: AdminNavbarProps) {
-  const router = useRouter();
   const { toast } = useToast();
 
   const handleSignOut = async () => {
     try {
       const supabase = createClient();
-      await supabase.auth.signOut();
+
+      // Clear all auth-related localStorage
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("supabase.auth.token");
+        localStorage.removeItem("sb-urhxgnzljgnvzmirpquz-auth-token");
+        sessionStorage.clear();
+      }
+
+      await supabase.auth.signOut({ scope: "global" });
+
       toast({
         title: "Signed Out Successfully",
         description: "You have been logged out from admin panel.",
       });
-      router.push("/");
-      router.refresh();
+
+      // Force page reload to clear all state
+      window.location.replace("/");
     } catch (error) {
+      console.error("Sign out error:", error);
       toast({
         title: "Sign Out Failed",
         description: "There was an error signing you out. Please try again.",
         variant: "destructive",
       });
+      // Force redirect even if there's an error
+      window.location.replace("/");
     }
   };
 

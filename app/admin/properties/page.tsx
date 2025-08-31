@@ -12,11 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogOverlay,
   DialogPortal,
 } from "@/components/ui/dialog";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -1163,8 +1161,6 @@ export default function AdminPropertiesPage() {
                           </Button>
                           <Link
                             href={`/properties/${getPropertySlug(property)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
                           >
                             <Button
                               variant="outline"
