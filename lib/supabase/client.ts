@@ -1,6 +1,7 @@
 import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient, Session } from "@supabase/supabase-js";
 
-let supabaseClient: any = null;
+let supabaseClient: SupabaseClient | null = null;
 
 export function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -21,18 +22,6 @@ export function createClient() {
         storage:
           typeof window !== "undefined" ? window.localStorage : undefined,
         storageKey: "supabase.auth.token",
-        // Add error handling for corrupted tokens
-        onAuthStateChange: (event, session) => {
-          if (event === "TOKEN_REFRESHED" && !session) {
-            // If token refresh failed, clear corrupted data
-            console.log("Token refresh failed - clearing auth data");
-            if (typeof window !== "undefined") {
-              localStorage.removeItem("supabase.auth.token");
-              localStorage.removeItem("sb-urhxgnzljgnvzmirpquz-auth-token");
-              sessionStorage.clear();
-            }
-          }
-        },
       },
       global: {
         headers: {
@@ -40,6 +29,21 @@ export function createClient() {
         },
       },
     });
+
+    // Set up auth state change listener separately
+    if (typeof window !== "undefined") {
+      supabaseClient.auth.onAuthStateChange(
+        (event: string, session: Session | null) => {
+          if (event === "TOKEN_REFRESHED" && !session) {
+            // If token refresh failed, clear corrupted data
+            console.log("Token refresh failed - clearing auth data");
+            localStorage.removeItem("supabase.auth.token");
+            localStorage.removeItem("sb-urhxgnzljgnvzmirpquz-auth-token");
+            sessionStorage.clear();
+          }
+        }
+      );
+    }
   }
 
   return supabaseClient;

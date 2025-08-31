@@ -80,6 +80,8 @@ export default function OwnerDashboard() {
       totalRevenue: number;
       totalBookings: number;
       averageBookingValue: number;
+      images?: string[];
+      price_per_night?: number;
     }[]
   >([]);
   const [loading, setLoading] = useState(true);
@@ -132,7 +134,7 @@ export default function OwnerDashboard() {
         return;
       }
 
-      setUser(user);
+      setUser({ id: user.id, email: user.email || "" });
       await Promise.all([fetchDashboardData(user.id), fetchSiteSettings()]);
     } catch (error) {
       console.error("Auth error:", error);
@@ -155,7 +157,7 @@ export default function OwnerDashboard() {
         contact_email: "info@farmstayoasis.com",
       };
 
-      settings?.forEach((setting) => {
+      settings?.forEach((setting: { key: string; value: string }) => {
         settingsMap[setting.key] = setting.value;
       });
 
@@ -183,7 +185,7 @@ export default function OwnerDashboard() {
 
       const totalProperties = properties?.length || 0;
       const activeProperties =
-        properties?.filter((p) => p.is_active).length || 0;
+        properties?.filter((p: any) => p.is_active).length || 0;
 
       // Fetch bookings stats
       const { data: bookings } = await supabase
@@ -193,33 +195,36 @@ export default function OwnerDashboard() {
 
       const totalBookings = bookings?.length || 0;
       const pendingBookings =
-        bookings?.filter((b) => b.status === "pending").length || 0;
+        bookings?.filter((b: any) => b.status === "pending").length || 0;
       const confirmedBookings =
-        bookings?.filter((b) => b.status === "confirmed").length || 0;
+        bookings?.filter((b: any) => b.status === "confirmed").length || 0;
       const totalRevenue =
-        bookings?.reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0;
+        bookings?.reduce(
+          (sum: number, b: any) => sum + (b.total_amount || 0),
+          0
+        ) || 0;
 
       // Calculate monthly revenue (current month)
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       const monthlyRevenue =
         bookings
-          ?.filter((b) => {
+          ?.filter((b: any) => {
             const bookingDate = new Date(b.created_at);
             return (
               bookingDate.getMonth() === currentMonth &&
               bookingDate.getFullYear() === currentYear
             );
           })
-          .reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0;
+          .reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0) || 0;
 
       // Calculate weekly revenue (last 7 days)
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       const weeklyRevenue =
         bookings
-          ?.filter((b) => new Date(b.created_at) >= weekAgo)
-          .reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0;
+          ?.filter((b: any) => new Date(b.created_at) >= weekAgo)
+          .reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0) || 0;
 
       // Calculate occupancy rate (simplified)
       const occupancyRate =
@@ -233,7 +238,7 @@ export default function OwnerDashboard() {
         const date = new Date();
         date.setMonth(date.getMonth() - i);
         const monthBookings =
-          bookings?.filter((b) => {
+          bookings?.filter((b: any) => {
             const bookingDate = new Date(b.created_at);
             return (
               bookingDate.getMonth() === date.getMonth() &&
@@ -244,7 +249,7 @@ export default function OwnerDashboard() {
         monthlyDataArray.push({
           month: date.toLocaleDateString("en-US", { month: "short" }),
           revenue: monthBookings.reduce(
-            (sum, b) => sum + (b.total_amount || 0),
+            (sum: number, b: any) => sum + (b.total_amount || 0),
             0
           ),
           bookings: monthBookings.length,
@@ -285,26 +290,16 @@ export default function OwnerDashboard() {
         .order("created_at", { ascending: false })
         .limit(5);
 
-      const formattedBookings =
-        recentBookingsData?.map(
-          (booking: {
-            id: string;
-            check_in_date: string;
-            check_out_date: string;
-            total_amount: number;
-            status: string;
-            farmhouses: { name: string };
-            users: { full_name: string | null };
-          }) => ({
-            id: booking.id,
-            farmhouse_name: booking.farmhouses.name,
-            guest_name: booking.users.full_name || "Guest",
-            check_in_date: booking.check_in_date,
-            check_out_date: booking.check_out_date,
-            total_amount: booking.total_amount,
-            status: booking.status,
-          })
-        ) || [];
+      const formattedBookings: RecentBooking[] =
+        recentBookingsData?.map((booking: any) => ({
+          id: booking.id,
+          farmhouse_name: booking.farmhouses.name,
+          guest_name: booking.users.full_name || "Guest",
+          check_in_date: booking.check_in_date,
+          check_out_date: booking.check_out_date,
+          total_amount: booking.total_amount,
+          status: booking.status,
+        })) || [];
 
       setRecentBookings(formattedBookings);
 
@@ -358,7 +353,7 @@ export default function OwnerDashboard() {
 
       // Sort by total revenue and take top 3
       const sortedProperties = propertiesWithStats
-        .sort((a, b) => b.totalRevenue - a.totalRevenue)
+        .sort((a: any, b: any) => b.totalRevenue - a.totalRevenue)
         .slice(0, 3);
 
       setTopProperties(sortedProperties);
@@ -896,7 +891,7 @@ export default function OwnerDashboard() {
 
                         {/* Additional Info */}
                         <div className="flex items-center justify-between text-sm text-gray-600">
-                          <span>₹{property.price_per_night}/night</span>
+                          <span>₹{property.price_per_night || 0}/night</span>
                           {property.averageBookingValue > 0 && (
                             <span className="bg-gray-100 px-2 py-1 rounded">
                               Avg: ₹{Math.round(property.averageBookingValue)}

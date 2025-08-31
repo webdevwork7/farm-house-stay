@@ -41,11 +41,7 @@ import Image from "next/image";
 import { format } from "date-fns";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import {
-  getPropertyNameFromSlug,
-  getPropertySlug,
-  createSlug,
-} from "@/lib/utils/slug";
+import { getPropertySlug } from "@/lib/utils/slug";
 import { getRandomReviews } from "@/lib/data/reviews";
 
 interface Farmhouse {
@@ -138,7 +134,7 @@ export default function PropertyDetailPage() {
       console.log("Total properties in database:", data?.length || 0);
       console.log(
         "Active properties:",
-        data?.filter((p) => p.is_active)?.length || 0
+        data?.filter((p: any) => p.is_active)?.length || 0
       );
 
       if (!data || data.length === 0) {
@@ -148,8 +144,8 @@ export default function PropertyDetailPage() {
       }
 
       // Find property by exact slug match (only active properties)
-      const activeProperties = data.filter((p) => p.is_active);
-      const matchedProperty = activeProperties.find((p) => {
+      const activeProperties = data.filter((p: any) => p.is_active);
+      const matchedProperty = activeProperties.find((p: any) => {
         const propertySlug = getPropertySlug(p);
         console.log(
           `Property "${p.name}" -> slug: "${propertySlug}" (looking for: "${slug}")`
@@ -172,11 +168,11 @@ export default function PropertyDetailPage() {
         // List all available slugs for debugging
         console.log(
           "Available slugs:",
-          activeProperties.map((p) => getPropertySlug(p))
+          activeProperties.map((p: any) => getPropertySlug(p))
         );
 
         // Try partial matching as fallback
-        const partialMatch = activeProperties.find((p) => {
+        const partialMatch = activeProperties.find((p: any) => {
           const propertySlug = getPropertySlug(p);
           return propertySlug.includes(slug) || slug.includes(propertySlug);
         });
