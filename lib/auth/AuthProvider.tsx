@@ -35,95 +35,212 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Auto-recover corrupted auth state on mount
-    autoRecoverAuth();
+    let mounted = true;
+    let authSubscription: any = null;
 
-    const supabase = createClient();
-
-    // Add timeout to prevent infinite loading
-    const loadingTimeout = setTimeout(() => {
-      console.log("Auth loading timeout - clearing corrupted auth state");
-      clearAllAuthData();
-      setLoading(false);
-    }, 5000); // 5 second timeout
-
-    // Get initial session
-    const getInitialSession = async () => {
+    const initializeAuth = async () => {
       try {
+        // Auto-recover corrupted auth state on mount
+        autoRecoverAuth();
+
+        const supabase = createClient();
+
+        // Get initial session with retry logic
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        const getSessionWithRetry = async (): Promise<any> => {
+          try {
+            const {
+              data: { session },
+              error,
+            } = await supabase.auth.getSession();
+
+            if (error) {
+              console.error("Session error:", error);
+              if (retryCount < maxRetries) {
+                retryCount++;
+                console.log(
+                  `Retrying session fetch (${retryCount}/${maxRetries})`
+                );
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                return getSessionWithRetry();
+              } else {
+                clearAllAuthData();
+                return null;
+              }
+            }
+
+            return session;
+          } catch (error) {
+            console.error("Error getting session:", error);
+            if (retryCount < maxRetries) {
+              retryCount++;
+              console.log(
+                `Retrying session fetch (${retryCount}/${maxRetries})`
+              );
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+              return getSessionWithRetry();
+            } else {
+              clearAllAuthData();
+              return null;
+            }
+          }
+        };
+
+        const session = await getSessionWithRetry();
+
+        if (mounted) {
+          if (session?.user) {
+            setUser(session.user);
+            await fetchUserRole(session.user.id);
+          } else {
+            setUser(null);
+            setUserRole(null);
+          }
+          setLoading(false);
+          // Clear loading marker on successful auth
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("auth_loading_start");
+          }
+        }
+
+        // Listen for auth changes
         const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log("Auth event:", event, session?.user?.id);
 
-        // Clear timeout since we got a response
-        clearTimeout(loadingTimeout);
+          if (!mounted) return;
 
-        if (error) {
-          console.error("Session error:", error);
-          // If there's an auth error, clear corrupted tokens
+          if (event === "SIGNED_OUT" || !session) {
+            setUser(null);
+            setUserRole(null);
+            if (event === "SIGNED_OUT") {
+              clearAllAuthData();
+            }
+          } else if (event === "TOKEN_REFRESHED") {
+            if (session?.user) {
+              setUser(session.user);
+              await fetchUserRole(session.user.id);
+            } else {
+              // Token refresh failed
+              console.log("Token refresh failed - clearing auth data");
+              setUser(null);
+              setUserRole(null);
+              clearAllAuthData();
+            }
+          } else if (session?.user) {
+            setUser(session.user);
+            await fetchUserRole(session.user.id);
+          }
+
+          if (mounted) {
+            setLoading(false);
+            // Clear loading marker
+            if (typeof window !== "undefined") {
+              sessionStorage.removeItem("auth_loading_start");
+            }
+          }
+        });
+
+        authSubscription = subscription;
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+        if (mounted) {
           clearAllAuthData();
           setLoading(false);
-          return;
         }
-
-        if (session?.user) {
-          setUser(session.user);
-          await fetchUserRole(session.user.id);
-        }
-      } catch (error) {
-        console.error("Error getting initial session:", error);
-        // Clear corrupted auth data
-        clearAllAuthData();
-      } finally {
-        clearTimeout(loadingTimeout);
-        setLoading(false);
       }
     };
 
-    getInitialSession();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth event:", event);
-
-      if (event === "SIGNED_OUT" || !session) {
-        setUser(null);
-        setUserRole(null);
-        clearAllAuthData();
-      } else if (event === "TOKEN_REFRESHED" && !session) {
-        // Token refresh failed - clear corrupted data
-        console.log("Token refresh failed - clearing corrupted auth data");
-        setUser(null);
-        setUserRole(null);
-        clearAllAuthData();
-      } else if (session?.user) {
-        setUser(session.user);
-        await fetchUserRole(session.user.id);
+    // Add timeout to prevent infinite loading
+    const loadingTimeout = setTimeout(() => {
+      if (mounted) {
+        console.log("Auth loading timeout - setting loading to false");
+        setLoading(false);
       }
+    }, 8000); // 8 second timeout
 
-      setLoading(false);
-    });
+    initializeAuth();
 
     return () => {
-      subscription.unsubscribe();
+      mounted = false;
+      clearTimeout(loadingTimeout);
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
     };
   }, []);
 
   const fetchUserRole = async (userId: string) => {
     try {
       const supabase = createClient();
-      const { data: profile } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", userId)
-        .single();
 
-      setUserRole(profile?.role || null);
-    } catch (error) {
-      console.error("Error fetching user role:", error);
-      setUserRole(null);
+      // Add retry logic for database calls
+      let retryCount = 0;
+      const maxRetries = 2; // Reduced retries
+
+      const fetchWithRetry = async (): Promise<any> => {
+        try {
+          const { data: profile, error } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", userId)
+            .single();
+
+          if (error) {
+            // Handle expected errors silently
+            if (
+              error.code === "PGRST116" ||
+              error.message?.includes("No rows returned")
+            ) {
+              // User doesn't exist in users table yet - this is expected for new users
+              console.log(
+                "User not found in users table, setting default role"
+              );
+              return { role: "visitor" };
+            }
+
+            // Only log unexpected errors
+            if (
+              error.code !== "PGRST116" &&
+              !error.message?.includes("No rows returned")
+            ) {
+              console.warn("User role fetch error:", error.message);
+            }
+
+            if (retryCount < maxRetries && error.code !== "PGRST116") {
+              retryCount++;
+              await new Promise((resolve) => setTimeout(resolve, 500));
+              return fetchWithRetry();
+            }
+            return { role: "visitor" };
+          }
+
+          return profile;
+        } catch (error: any) {
+          // Only log actual connection/network errors
+          if (
+            error.message?.includes("fetch") ||
+            error.message?.includes("network")
+          ) {
+            console.warn("Database connection issue:", error.message);
+            if (retryCount < maxRetries) {
+              retryCount++;
+              await new Promise((resolve) => setTimeout(resolve, 500));
+              return fetchWithRetry();
+            }
+          }
+          return { role: "visitor" };
+        }
+      };
+
+      const profile = await fetchWithRetry();
+      setUserRole(profile?.role || "visitor");
+    } catch (error: any) {
+      // Silent fallback - don't log expected errors
+      setUserRole("visitor");
     }
   };
 

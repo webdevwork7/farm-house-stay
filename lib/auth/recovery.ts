@@ -56,7 +56,22 @@ export function checkAuthHealth() {
     const parsed = JSON.parse(authToken);
 
     if (!parsed.refresh_token || !parsed.access_token) {
-      console.log("❌ Corrupted auth token detected - missing refresh_token");
+      console.log("❌ Corrupted auth token detected - missing tokens");
+      return false;
+    }
+
+    // Check if tokens are expired
+    if (parsed.expires_at && parsed.expires_at < Date.now() / 1000) {
+      console.log("❌ Auth token expired");
+      return false;
+    }
+
+    // Check if token structure is valid
+    if (
+      typeof parsed.access_token !== "string" ||
+      typeof parsed.refresh_token !== "string"
+    ) {
+      console.log("❌ Invalid token structure");
       return false;
     }
 
@@ -68,12 +83,54 @@ export function checkAuthHealth() {
   }
 }
 
+export function detectStuckState() {
+  if (typeof window === "undefined") return false;
+
+  // Check if we've been loading for too long
+  const loadingStartTime = sessionStorage.getItem("auth_loading_start");
+  if (loadingStartTime) {
+    const elapsed = Date.now() - parseInt(loadingStartTime);
+    if (elapsed > 10000) {
+      // 10 seconds
+      console.log("❌ Detected stuck loading state");
+      sessionStorage.removeItem("auth_loading_start");
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function markLoadingStart() {
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("auth_loading_start", Date.now().toString());
+  }
+}
+
+export function clearLoadingMarker() {
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem("auth_loading_start");
+  }
+}
+
 // Auto-recovery function that runs on page load
 export function autoRecoverAuth() {
+  // Check for stuck state first
+  if (detectStuckState()) {
+    console.log("🔧 Auto-recovering stuck auth state");
+    clearAllAuthData();
+    return;
+  }
+
+  // Check auth health
   if (!checkAuthHealth()) {
     console.log("🔧 Auto-recovering corrupted auth state");
     clearAllAuthData();
+    return;
   }
+
+  // Mark loading start for stuck state detection
+  markLoadingStart();
 }
 
 // Make recovery functions available globally for manual use
