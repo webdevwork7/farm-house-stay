@@ -65,7 +65,7 @@ interface Farmhouse {
 interface BookingForm {
   check_in_date: Date | undefined;
   check_out_date: Date | undefined;
-  guests: number;
+  guests: number | string;
   special_requests: string;
 }
 
@@ -248,7 +248,29 @@ export default function PropertyDetailPage() {
       return;
     }
 
-    // Guest count is already validated in the input field, no need to check here
+    // Validate guest count
+    const guestCount =
+      typeof bookingForm.guests === "string"
+        ? parseInt(bookingForm.guests)
+        : bookingForm.guests;
+
+    if (!guestCount || isNaN(guestCount) || guestCount < 1) {
+      toast({
+        title: "Invalid Guest Count",
+        description: "Please enter a valid number of guests (minimum 1).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (guestCount > property.max_guests) {
+      toast({
+        title: "Too Many Guests",
+        description: `This property can accommodate maximum ${property.max_guests} guests.`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Validate dates
     if (bookingForm.check_out_date <= bookingForm.check_in_date) {
@@ -269,7 +291,7 @@ export default function PropertyDetailPage() {
         farmhouse_id: property.id,
         check_in: format(bookingForm.check_in_date, "yyyy-MM-dd"),
         check_out: format(bookingForm.check_out_date, "yyyy-MM-dd"),
-        guests: bookingForm.guests,
+        guests: guestCount,
         total_amount: totalAmount,
         special_requests: bookingForm.special_requests || null,
         status: "pending",
@@ -837,26 +859,37 @@ export default function PropertyDetailPage() {
                       </Label>
                       <Input
                         type="number"
-                        min="1"
                         max={property.max_guests}
-                        value={bookingForm.guests}
+                        value={bookingForm.guests || ""}
                         onChange={(e) => {
-                          let value = parseInt(e.target.value) || 1;
+                          const inputValue = e.target.value;
+
+                          // Allow empty input for user to completely clear and retype
+                          if (inputValue === "") {
+                            setBookingForm((prev) => ({
+                              ...prev,
+                              guests: "" as any,
+                            }));
+                            return;
+                          }
+
+                          let value = parseInt(inputValue);
                           const maxGuests = property.max_guests;
 
-                          // Automatically cap the value to max guests
-                          if (value > maxGuests) {
-                            value = maxGuests;
-                          }
-                          if (value < 1) {
-                            value = 1;
-                          }
+                          // Only update if it's a valid number
+                          if (!isNaN(value)) {
+                            // Automatically cap the value to max guests
+                            if (value > maxGuests) {
+                              value = maxGuests;
+                            }
 
-                          setBookingForm((prev) => ({
-                            ...prev,
-                            guests: value,
-                          }));
+                            setBookingForm((prev) => ({
+                              ...prev,
+                              guests: value,
+                            }));
+                          }
                         }}
+                        placeholder="Enter number of guests"
                         className="h-10 sm:h-12 border-2 hover:border-green-300 focus:border-green-500 transition-colors text-sm sm:text-base"
                       />
                       <p className="text-xs text-gray-500 mt-1">
