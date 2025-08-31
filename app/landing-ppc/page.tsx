@@ -43,8 +43,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import LandingNavbar from "@/components/LandingNavbar";
 
 export default function LandingPPCPage() {
   const [formData, setFormData] = useState({
@@ -219,7 +219,7 @@ export default function LandingPPCPage() {
     <>
       <title>{siteName} - Premium Farm Stay Experience</title>
       <div className="min-h-screen bg-white">
-        <Navbar currentPage="landing" />
+        <LandingNavbar />
 
         {/* Hero Section */}
         <section className="relative bg-gradient-to-br from-green-50 to-blue-50 py-20">
@@ -382,11 +382,9 @@ export default function LandingPPCPage() {
                       name="guests"
                       type="number"
                       min="1"
-                      max="20"
                       value={formData.guests}
                       onChange={(e) => {
                         let value = parseInt(e.target.value) || 1;
-                        if (value > 20) value = 20;
                         if (value < 1) value = 1;
                         setFormData((prev) => ({
                           ...prev,
