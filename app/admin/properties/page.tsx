@@ -35,6 +35,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import AdminNavbar from "@/components/AdminNavbar";
+import { getPropertySlug } from "@/lib/utils/slug";
 
 interface Property {
   id: string;
@@ -1161,7 +1162,7 @@ export default function AdminPropertiesPage() {
                             )}
                           </Button>
                           <Link
-                            href={`/properties/${property.id}`}
+                            href={`/properties/${getPropertySlug(property)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

@@ -41,7 +41,11 @@ import Image from "next/image";
 import { format } from "date-fns";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { getPropertyNameFromSlug } from "@/lib/utils/slug";
+import {
+  getPropertyNameFromSlug,
+  getPropertySlug,
+  createSlug,
+} from "@/lib/utils/slug";
 import { getRandomReviews } from "@/lib/data/reviews";
 
 interface Farmhouse {
@@ -87,8 +91,20 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     if (params.slug) {
+      console.log("useEffect triggered with slug:", params.slug);
       fetchPropertyBySlug(params.slug as string);
       fetchSiteSettings();
+
+      // Add timeout to prevent infinite loading
+      const timeout = setTimeout(() => {
+        console.log("Timeout reached, stopping loading");
+        setLoading(false);
+      }, 10000); // 10 seconds timeout
+
+      return () => clearTimeout(timeout);
+    } else {
+      console.log("No slug found in params");
+      setLoading(false);
     }
   }, [params.slug]);
 
@@ -112,29 +128,39 @@ export default function PropertyDetailPage() {
   const fetchPropertyBySlug = async (slug: string) => {
     try {
       const supabase = createClient();
+      console.log("Looking for property with slug:", slug);
 
-      // Get all properties and find by exact slug match
-      const { data, error } = await supabase
-        .from("farmhouses")
-        .select("*")
-        .eq("is_active", true);
+      // Get all properties (both active and inactive for debugging)
+      const { data, error } = await supabase.from("farmhouses").select("*");
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
 
-      // Find property by exact slug match
-      const matchedProperty = data?.find((p) => {
-        // Create slug from property name
-        const propertySlug = p.name
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, "")
-          .replace(/\s+/g, "-")
-          .replace(/-+/g, "-")
-          .trim()
-          .replace(/^-+|-+$/g, "");
+      console.log("Total properties in database:", data?.length || 0);
+      console.log(
+        "Active properties:",
+        data?.filter((p) => p.is_active)?.length || 0
+      );
 
-        // Exact match only
+      if (!data || data.length === 0) {
+        console.log("No properties found in database");
+        setProperty(null);
+        return;
+      }
+
+      // Find property by exact slug match (only active properties)
+      const activeProperties = data.filter((p) => p.is_active);
+      const matchedProperty = activeProperties.find((p) => {
+        const propertySlug = getPropertySlug(p);
+        console.log(
+          `Property "${p.name}" -> slug: "${propertySlug}" (looking for: "${slug}")`
+        );
         return propertySlug === slug;
       });
+
+      console.log("Matched property:", matchedProperty?.name || "None found");
 
       if (matchedProperty) {
         const propertyWithRating = {
@@ -142,14 +168,39 @@ export default function PropertyDetailPage() {
           average_rating: matchedProperty.rating || 0,
           total_reviews: matchedProperty.total_reviews || 0,
         };
+        console.log("Setting property:", propertyWithRating.name);
         setProperty(propertyWithRating);
       } else {
-        setProperty(null);
+        console.log("No matching property found for slug:", slug);
+        // List all available slugs for debugging
+        console.log(
+          "Available slugs:",
+          activeProperties.map((p) => getPropertySlug(p))
+        );
+
+        // Try partial matching as fallback
+        const partialMatch = activeProperties.find((p) => {
+          const propertySlug = getPropertySlug(p);
+          return propertySlug.includes(slug) || slug.includes(propertySlug);
+        });
+
+        if (partialMatch) {
+          console.log("Found partial match:", partialMatch.name);
+          const propertyWithRating = {
+            ...partialMatch,
+            average_rating: partialMatch.rating || 0,
+            total_reviews: partialMatch.total_reviews || 0,
+          };
+          setProperty(propertyWithRating);
+        } else {
+          setProperty(null);
+        }
       }
     } catch (error) {
       console.error("Error fetching property by slug:", error);
       setProperty(null);
     } finally {
+      console.log("Setting loading to false");
       setLoading(false);
     }
   };
