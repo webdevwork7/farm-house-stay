@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import AuthRecovery from "@/components/AuthRecovery";
+import Script from "next/script";
 
 async function getSiteSettings() {
   const cookieStore = await cookies();
@@ -130,6 +130,39 @@ html {
         `}</style>
       </head>
       <body>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17515421909"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            // Main config
+            gtag('config', 'AW-17515421909');
+
+            // Phone conversion config
+            gtag('config', 'AW-17515421909/0hV7CMCKiJIbENXBgKBB', {
+              'phone_conversion_number': '+91 8897326898'
+            });
+
+            // Custom conversion function
+            function gtag_report_conversion(url) {
+              var callback = function () {
+                if (typeof(url) != 'undefined') {
+                  window.location = url;
+                }
+              };
+              gtag('event', 'conversion', {
+                'send_to': 'AW-17515421909/XEwVCOuGk5IbENXBgKBB',
+                'event_callback': callback
+              });
+              return false;
+            }
+          `}
+        </Script>
         <AuthProvider>
           {children}
           <Toaster />
