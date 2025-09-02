@@ -9,7 +9,6 @@ export function createClient(): SupabaseClient {
     throw new Error("Missing Supabase environment variables");
   }
 
-  // Create fresh client instance to avoid stale auth state
   return createBrowserClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,

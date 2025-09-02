@@ -602,6 +602,41 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Legal</h3>
+                <div className="space-y-2">
+                  <Link
+                    href="/privacy-policy"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                  <Link
+                    href="/terms-conditions"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Terms & Conditions
+                  </Link>
+                  <Link
+                    href="/return-policy"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Return Policy
+                  </Link>
+                  <Link
+                    href="/disclaimer"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Disclaimer
+                  </Link>
+                  <Link
+                    href="/shipping-policy"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Shipping Policy
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Contact Info</h3>
                 <div className="space-y-2 text-gray-400">
                   <p>{settings.contact_email || "info@farmstayoasis.com"}</p>
@@ -611,11 +646,46 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-              <p>
-                &copy; 2025 {settings.site_name || "FarmStay Oasis"}. All rights
-                reserved. | Bringing you closer to nature, one farm at a time.
-              </p>
+            <div className="border-t border-gray-800 mt-12 pt-8">
+              <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <p className="text-gray-400 text-center md:text-left">
+                  &copy; 2025 {settings.site_name || "FarmStay Oasis"}. All
+                  rights reserved. | Bringing you closer to nature, one farm at
+                  a time.
+                </p>
+                <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
+                  <Link
+                    href="/privacy-policy"
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    Privacy
+                  </Link>
+                  <Link
+                    href="/terms-conditions"
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    Terms
+                  </Link>
+                  <Link
+                    href="/return-policy"
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    Returns
+                  </Link>
+                  <Link
+                    href="/disclaimer"
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    Disclaimer
+                  </Link>
+                  <Link
+                    href="/shipping-policy"
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    Shipping
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </footer>
