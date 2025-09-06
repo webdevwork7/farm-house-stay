@@ -21,10 +21,13 @@ import {
   DollarSign,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import DashboardNavbar from "@/components/DashboardNavbar";
 
-export default function NewPropertyPage() {
+export default function EditPropertyPage() {
+  const params = useParams();
+  const propertyId = params.id as string;
+  
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -44,14 +47,17 @@ export default function NewPropertyPage() {
 
   const router = useRouter();
   const { toast } = useToast();
+  const supabase = createClient();
 
   useEffect(() => {
-    checkAuthAndFetchSettings();
-  }, []);
+    checkAuthAndFetchProperty();
+  }, [propertyId]);
 
-  const checkAuthAndFetchSettings = async () => {
+  const checkAuthAndFetchProperty = async () => {
     try {
-      const supabase = createClient();
+      setLoading(true);
+      
+      // Check authentication
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -61,16 +67,17 @@ export default function NewPropertyPage() {
         return;
       }
 
-      const { data: userData, error } = await supabase
+      // Check user role
+      const { data: userData, error: userError } = await supabase
         .from("users")
         .select("role")
         .eq("id", user.id)
         .single();
 
-      if (error || !userData || userData.role !== "owner") {
+      if (userError || !userData || userData.role !== "owner") {
         toast({
           title: "Access Denied",
-          description: "You need to be a property owner to add properties.",
+          description: "You need to be a property owner to edit properties.",
           variant: "destructive",
         });
         router.push("/");
@@ -79,6 +86,7 @@ export default function NewPropertyPage() {
 
       setUser({ id: user.id, email: user.email || "" });
 
+      // Fetch site settings
       const { data: settings } = await supabase
         .from("site_settings")
         .select("key, value")
@@ -88,9 +96,53 @@ export default function NewPropertyPage() {
       if (settings?.value) {
         setSiteName(settings.value);
       }
+
+      // Fetch property data
+      const { data: property, error: propertyError } = await supabase
+        .from("farmhouses")
+        .select("*")
+        .eq("id", propertyId)
+        .single();
+
+      if (propertyError || !property) {
+        toast({
+          title: "Property Not Found",
+          description: "The property you're trying to edit could not be found.",
+          variant: "destructive",
+        });
+        router.push("/dashboard/properties");
+        return;
+      }
+
+      // Check if user is the owner of this property
+      if (property.owner_id !== user.id) {
+        toast({
+          title: "Access Denied",
+          description: "You can only edit your own properties.",
+          variant: "destructive",
+        });
+        router.push("/dashboard/properties");
+        return;
+      }
+
+      // Populate form with property data
+      setName(property.name);
+      setDescription(property.description || "");
+      setLocation(property.location);
+      setPricePerNight(property.price_per_night.toString());
+      setMaxGuests(property.max_guests.toString());
+      setBedrooms(property.bedrooms.toString());
+      setBathrooms(property.bathrooms.toString());
+      setAmenities(property.amenities || []);
+      setImages(property.images || []);
     } catch (error) {
-      console.error("Auth error:", error);
-      router.push("/auth/login");
+      console.error("Error fetching property:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load property data. Please try again.",
+        variant: "destructive",
+      });
+      router.push("/dashboard/properties");
     } finally {
       setLoading(false);
     }
@@ -132,7 +184,7 @@ export default function NewPropertyPage() {
     setImages((prev) => prev.filter((image) => image !== imageToRemove));
   };
 
-  const submitProperty = async () => {
+  const updateProperty = async () => {
     if (!name || !location) {
       toast({
         title: "Missing Information",
@@ -145,72 +197,40 @@ export default function NewPropertyPage() {
     setSubmitting(true);
 
     try {
-      const propertyData = {
-        owner_id: user?.id || "00000000-0000-0000-0000-000000000000",
-        name: name.trim(),
-        description: description.trim() || "No description provided",
-        location: location.trim(),
-        price_per_night: parseInt(pricePerNight) || 1000,
-        max_guests: parseInt(maxGuests) || 2,
-        bedrooms: parseInt(bedrooms) || 1,
-        bathrooms: parseInt(bathrooms) || 1,
-        amenities: amenities,
-        images:
-          images.length > 0
-            ? images
-            : ["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c"],
-        is_active: true,
-        rating: 0,
-        total_reviews: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const { error } = await supabase
+        .from("farmhouses")
+        .update({
+          name: name.trim(),
+          description: description.trim() || "No description provided",
+          location: location.trim(),
+          price_per_night: parseInt(pricePerNight) || 1000,
+          max_guests: parseInt(maxGuests) || 2,
+          bedrooms: parseInt(bedrooms) || 1,
+          bathrooms: parseInt(bathrooms) || 1,
+          amenities: amenities,
+          images:
+            images.length > 0
+              ? images
+              : ["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c"],
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", propertyId);
 
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-      if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error("Missing Supabase environment variables");
-      }
-
-      const response = await fetch(`${supabaseUrl}/rest/v1/farmhouses`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: supabaseAnonKey,
-          Authorization: `Bearer ${supabaseAnonKey}`,
-          Prefer: "return=minimal",
-        },
-        body: JSON.stringify(propertyData),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API error: ${response.status} ${errorText}`);
-      }
+      if (error) throw error;
 
       toast({
-        title: "Property Added Successfully!",
-        description: `${name} has been added and is now live on the platform.`,
+        title: "Property Updated Successfully!",
+        description: `${name} has been updated successfully.`,
         duration: 6000,
       });
 
-      setName("");
-      setDescription("");
-      setLocation("");
-      setPricePerNight("");
-      setMaxGuests("");
-      setBedrooms("");
-      setBathrooms("");
-      setAmenities([]);
-      setImages([]);
-
-      router.replace("/dashboard");
+      // Redirect with cache-busting parameter
+      router.replace(`/dashboard/properties?t=${Date.now()}`);
     } catch (error) {
-      console.error("Property creation error:", error);
+      console.error("Property update error:", error);
 
       toast({
-        title: "Error Adding Property",
+        title: "Error Updating Property",
         description:
           error instanceof Error
             ? error.message
@@ -227,7 +247,7 @@ export default function NewPropertyPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Loading property data...</p>
         </div>
       </div>
     );
@@ -235,7 +255,7 @@ export default function NewPropertyPage() {
 
   return (
     <>
-      <title>Add New Property - {siteName}</title>
+      <title>Edit Property - {siteName}</title>
       <div className="min-h-screen bg-gray-50">
         <DashboardNavbar currentPage="properties" siteName={siteName} />
 
@@ -250,10 +270,10 @@ export default function NewPropertyPage() {
             </Link>
 
             <h1 className="text-3xl font-bold text-gray-900">
-              Add New Property
+              Edit Property
             </h1>
             <p className="text-gray-600">
-              Create a new farm house listing for guests to discover and book.
+              Update your farm house listing details.
             </p>
           </div>
 
@@ -494,20 +514,17 @@ export default function NewPropertyPage() {
                     </Button>
                   </Link>
                   <Button
-                    onClick={submitProperty}
+                    onClick={updateProperty}
                     disabled={submitting}
                     className="bg-green-600 hover:bg-green-700 text-white px-8"
                   >
                     {submitting ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Creating Property...
+                        Updating Property...
                       </>
                     ) : (
-                      <>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create Property
-                      </>
+                      <>Save Changes</>
                     )}
                   </Button>
                 </div>

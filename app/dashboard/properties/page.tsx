@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,11 +16,13 @@ import {
   MapPin,
   Users,
   DollarSign,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import DashboardNavbar from "@/components/DashboardNavbar";
+import { getPropertySlug } from "@/lib/utils/slug";
 
 interface Property {
   id: string;
@@ -38,67 +40,133 @@ interface Property {
 }
 
 export default function PropertiesManagement() {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [authChecked, setAuthChecked] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    checkAuthAndFetchProperties();
-  }, []);
+  const supabase = createClient();
 
-  useEffect(() => {
-    filterProperties();
-  }, [properties, searchTerm]);
+  // Fetch properties function
+  const fetchProperties = useCallback(
+    async (userId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from("farmhouses")
+          .select("*")
+          .eq("owner_id", userId)
+          .order("created_at", { ascending: false });
 
-  const checkAuthAndFetchProperties = async () => {
+        if (error) throw error;
+
+        setProperties(data || []);
+        setFilteredProperties(data || []);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [supabase]
+  );
+
+  // Check authentication and role
+  const checkAuthAndRole = useCallback(async () => {
     try {
-      const supabase = createClient();
       const {
         data: { user },
+        error,
       } = await supabase.auth.getUser();
 
-      if (!user) {
+      if (error || !user) {
         router.push("/auth/login");
-        return;
+        return null;
       }
 
       // Check if user is an owner
-      const { data: userData } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from("users")
         .select("role")
         .eq("id", user.id)
         .single();
 
-      if (!userData || userData.role !== "owner") {
+      if (userError || !userData || userData.role !== "owner") {
         router.push("/");
-        return;
+        return null;
       }
 
-      await fetchProperties(user.id);
+      return user;
     } catch (error) {
       console.error("Auth error:", error);
       router.push("/auth/login");
-    } finally {
-      setLoading(false);
+      return null;
     }
-  };
+  }, [supabase, router]);
 
-  const fetchProperties = async (userId: string) => {
+  // Main initialization effect
+  useEffect(() => {
+    let mounted = true;
+
+    const initializeComponent = async () => {
+      // Wait a bit to ensure auth state is ready
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      if (!mounted) return;
+
+      const user = await checkAuthAndRole();
+      setAuthChecked(true);
+
+      if (user && mounted) {
+        await fetchProperties(user.id);
+      }
+    };
+
+    initializeComponent();
+
+    // Set up auth state listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
+      if (event === "SIGNED_IN" && session?.user) {
+        const user = await checkAuthAndRole();
+        if (user && mounted) {
+          await fetchProperties(user.id);
+        }
+      } else if (event === "SIGNED_OUT") {
+        router.push("/auth/login");
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [checkAuthAndRole, fetchProperties, supabase.auth, router]);
+
+  // Filter properties when search term or properties change
+  useEffect(() => {
+    filterProperties();
+  }, [properties, searchTerm]);
+
+  // Function to manually refresh properties
+  const refreshProperties = async () => {
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("farmhouses")
-        .select("*")
-        .eq("owner_id", userId)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setProperties(data || []);
+      setLoading(true);
+      const user = await checkAuthAndRole();
+      if (user) {
+        await fetchProperties(user.id);
+        toast({
+          title: "Properties refreshed",
+          description: "The property list has been updated.",
+        });
+      }
     } catch (error) {
-      console.error("Error fetching properties:", error);
+      setLoading(false);
     }
   };
 
@@ -121,7 +189,6 @@ export default function PropertiesManagement() {
     currentStatus: boolean
   ) => {
     try {
-      const supabase = createClient();
       const { error } = await supabase
         .from("farmhouses")
         .update({ is_active: !currentStatus })
@@ -135,6 +202,15 @@ export default function PropertiesManagement() {
           p.id === propertyId ? { ...p, is_active: !currentStatus } : p
         )
       );
+
+      toast({
+        title: `Property ${
+          !currentStatus ? "activated" : "deactivated"
+        } successfully`,
+        description: `The property has been ${
+          !currentStatus ? "activated" : "deactivated"
+        }.`,
+      });
     } catch (error) {
       console.error("Error updating property status:", error);
       toast({
@@ -155,7 +231,6 @@ export default function PropertiesManagement() {
     }
 
     try {
-      const supabase = createClient();
       const { error } = await supabase
         .from("farmhouses")
         .delete()
@@ -166,20 +241,21 @@ export default function PropertiesManagement() {
       // Update local state
       setProperties((prev) => prev.filter((p) => p.id !== propertyId));
       toast({
-        title: "Property Deleted",
-        description: "Property has been successfully deleted.",
+        title: "Property deleted successfully",
+        description: "The property has been removed from your listings.",
       });
     } catch (error) {
       console.error("Error deleting property:", error);
       toast({
-        title: "Delete Failed",
-        description: "Failed to delete property. Please try again.",
         variant: "destructive",
+        title: "Error",
+        description: "Failed to delete property.",
       });
     }
   };
 
-  if (loading) {
+  // Show loading only if auth hasn't been checked yet or if we're still loading data
+  if (!authChecked || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -209,9 +285,9 @@ export default function PropertiesManagement() {
           </Link>
         </div>
 
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
+        {/* Search and Refresh */}
+        <div className="mb-6 flex items-center gap-4">
+          <div className="relative max-w-md flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search properties..."
@@ -220,6 +296,14 @@ export default function PropertiesManagement() {
               className="pl-10"
             />
           </div>
+          <Button
+            onClick={refreshProperties}
+            variant="outline"
+            size="icon"
+            title="Refresh properties"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Properties Grid */}
@@ -302,7 +386,7 @@ export default function PropertiesManagement() {
                   </div>
                   <div className="flex space-x-2">
                     <Link
-                      href={`/properties/${property.id}`}
+                      href={`/properties/${getPropertySlug({id: property.id, name: property.name})}`}
                       className="flex-1"
                     >
                       <Button
