@@ -629,10 +629,10 @@ export default function LandingPPCPage() {
                   color: "bg-blue-100 text-blue-600",
                 },
                 {
-                  icon: Utensils,
-                  title: "Farm-to-Table Dining",
+                  icon: Tv,
+                  title: "Entertainment Zone",
                   description:
-                    "Fresh organic meals prepared with ingredients from our own farm",
+                    "Indoor games, TV lounge, and recreational activities for all ages",
                   color: "bg-green-100 text-green-600",
                 },
                 {
@@ -843,13 +843,6 @@ export default function LandingPPCPage() {
                       "{testimonial.text}"
                     </p>
                     <div className="flex items-center space-x-3">
-                      <Image
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
                       <div>
                         <p className="font-semibold text-gray-900">
                           {testimonial.name}
@@ -1020,7 +1013,7 @@ export default function LandingPPCPage() {
                         Transportation
                       </h3>
                       <p className="text-gray-600">
-                        Free pickup available from airport/station
+                        Free pickup on request - transportation available
                       </p>
                     </div>
                   </div>
@@ -1047,25 +1040,17 @@ export default function LandingPPCPage() {
                 </div>
               </div>
 
-              <div className="bg-gray-200 rounded-lg h-96 flex items-center justify-center relative overflow-hidden">
+              <div className="bg-gray-200 rounded-lg h-96 overflow-hidden">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d243647.3160407725!2d78.24323!3d17.4123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99daeaebd2c7%3A0xae93b78392bafbc2!2sHyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1640000000000!5m2!1sen!2sin"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3804.949252100765!2d78.62482367516776!3d17.509935783398276!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9d46c838857f%3A0xf390df9eae466c03!2sFarm%20Feast%20FarmHouse!5e0!3m2!1sen!2sin!4v1757501337299!5m2!1sen!2sin"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
-                  allowFullScreen
+                  allowFullScreen={true}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   className="rounded-lg"
-                  title={`${siteName} Location`}
                 />
-                <div className="absolute inset-0 bg-gray-300 flex items-center justify-center rounded-lg">
-                  <div className="text-center text-gray-600">
-                    <MapPin className="w-12 h-12 mx-auto mb-2" />
-                    <p className="font-medium">Hyderabad, Telangana</p>
-                    <p className="text-sm">{siteName}</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
