@@ -648,50 +648,34 @@ export default function PropertyDetailPage() {
                 </div>
 
                 <div className="border-t pt-4 sm:pt-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+                  <div className="mb-4 sm:mb-6">
                     <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
                       <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current inline mr-2" />
                       {(property.average_rating || 0).toFixed(1)} ·{" "}
                       {property.total_reviews || 0} reviews
                     </h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-fit text-xs sm:text-sm"
-                    >
-                      View All Reviews
-                    </Button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {reviews.map((review, index) => (
                       <Card key={index} className="border-0 shadow-sm">
                         <CardContent className="p-3 sm:p-4">
-                          <div className="flex items-center space-x-3 mb-3">
-                            <Image
-                              src={review.avatar || "/placeholder.svg"}
-                              alt={review.name}
-                              width={40}
-                              height={40}
-                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <h5 className="font-medium text-gray-900 text-sm sm:text-base truncate">
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <h5 className="font-medium text-gray-900 text-sm sm:text-base">
                                 {review.name}
                               </h5>
-                              <div className="flex items-center space-x-2">
-                                <div className="flex items-center space-x-1">
-                                  {[...Array(review.rating)].map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className="w-3 h-3 text-yellow-400 fill-current"
-                                    />
-                                  ))}
-                                </div>
-                                <span className="text-xs text-gray-500">
-                                  {review.date}
-                                </span>
-                              </div>
+                              <span className="text-xs text-gray-500">
+                                {review.date}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              {[...Array(review.rating)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className="w-3 h-3 text-yellow-400 fill-current"
+                                />
+                              ))}
                             </div>
                           </div>
                           <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">
@@ -716,7 +700,7 @@ export default function PropertyDetailPage() {
                         </span>
                       </div>
                       <p className="text-gray-600 mb-4">{property.address}</p>
-                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div className="grid md:grid-cols-2 gap-4 text-sm mb-4">
                         <div className="flex items-center space-x-2">
                           <Clock className="w-4 h-4 text-gray-500" />
                           <span>30 minutes from city center</span>
@@ -725,6 +709,18 @@ export default function PropertyDetailPage() {
                           <TreePine className="w-4 h-4 text-gray-500" />
                           <span>Surrounded by nature</span>
                         </div>
+                      </div>
+                      <div className="w-full h-64 rounded-lg overflow-hidden">
+                        <iframe
+                          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343008!2d-74.00425878459418!3d40.74844097932681!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus"
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          allowFullScreen
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          title="Property Location Map"
+                        ></iframe>
                       </div>
                     </div>
                   </div>
